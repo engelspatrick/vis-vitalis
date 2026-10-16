@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MMA × Hcy — Klinische Interpretationshilfe | Vis-Vitalis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f4f0;font-family:'Lato',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+.vv{background:#fff;border-radius:16px;padding:2rem 1.75rem 2.5rem;max-width:680px;width:100%}
+.vv-header{background:#8B3A2F;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.vv-header h1{font-family:'IM Fell English',serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:.01em}
+.vv-header p{font-size:13px;color:#f5cfc9;margin-top:4px}
+.vv-footer{margin-top:2rem;text-align:center;font-size:11px;color:#aaa9a0}
+.selector-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.sel-block label{display:block;font-size:12px;font-weight:700;color:#4A5240;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.sel-block select{width:100%;padding:10px 12px;border:1px solid #c8c8c0;border-radius:8px;font-size:15px;font-family:'Lato',sans-serif;color:#2c2c2a;background:#fafaf8;appearance:none;cursor:pointer}
+.sel-block select:focus{outline:2px solid #8B3A2F;outline-offset:1px}
+.result-card{border-radius:12px;padding:1.25rem 1.5rem;border:1.5px solid transparent;margin-bottom:1rem}
+.result-card.amber{background:#FFF8EE;border-color:#FCCF9D}
+.result-card.blue{background:#EEF5FA;border-color:#A8C6DA}
+.result-card.green{background:#F0F7EE;border-color:#79B473}
+.result-card.neutral{background:#F5F5F3;border-color:#D3D1C7}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.badge.amber{background:#FCCF9D;color:#5C3D0A}
+.badge.blue{background:#A8C6DA;color:#1a3a4a}
+.badge.green{background:#79B473;color:#1a3a1a}
+.badge.neutral{background:#D3D1C7;color:#444441}
+.result-title{font-family:'IM Fell English',serif;font-size:16px;font-weight:700;color:#3D1F1A;margin-bottom:8px}
+.section-label{font-size:11px;font-weight:700;color:#8B3A2F;text-transform:uppercase;letter-spacing:.07em;margin:12px 0 4px}
+.section-content{font-size:13px;color:#4A5240;line-height:1.65}
+.mikro-list{list-style:none;padding:0}
+.mikro-list li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #e0ddd8;font-size:13px;color:#4A5240;line-height:1.5}
+.mikro-list li:last-child{border-bottom:none}
+.mikro-dot{width:7px;height:7px;border-radius:50%;background:#8B3A2F;margin-top:5px;flex-shrink:0}
+.mikro-dot.green{background:#3B6D11}
+.mikro-dot.blue{background:#185FA5}
+.mikro-dot.neutral{background:#888780}
+.warning-box{background:#FEF3F3;border:1px solid #F0A0A0;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px;color:#7A2020;line-height:1.55}
+.confound-box{background:#FFFBF0;border:1px solid #F0D890;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px;color:#5C4500;line-height:1.55}
+.empty-state{text-align:center;padding:2.5rem 1rem;color:#888780;font-size:14px}
+.disclaimer{background:#f5f4f0;border-radius:8px;padding:10px 14px;margin-top:1.25rem;font-size:11px;color:#888780;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="vv">
+  <div class="vv-header">
+    <h1>MMA × Hcy — Klinische Interpretationshilfe</h1>
+    <p>Labormuster eingeben → Interpretation + Supplementierungshinweise</p>
+  </div>
+
+  <div class="selector-row">
+    <div class="sel-block">
+      <label>MMA-Status</label>
+      <select id="mma" onchange="render()">
+        <option value="">— wählen —</option>
+        <option value="hoch">Erhöht (↑)</option>
+        <option value="normal">Normal</option>
+        <option value="niedrig">Niedrig (↓)</option>
+      </select>
+    </div>
+    <div class="sel-block">
+      <label>Homocystein (Hcy)</label>
+      <select id="hcy" onchange="render()">
+        <option value="">— wählen —</option>
+        <option value="hoch">Erhöht (↑)</option>
+        <option value="normal">Normal</option>
+        <option value="niedrig">Niedrig (↓)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="output">
+    <div class="empty-state">Bitte MMA und Hcy auswählen</div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Klinischer Hinweis:</strong> Dieses Tool dient der Orientierung für ausgebildete Fachkräfte. Laborwerte immer im klinischen Gesamtkontext interpretieren. Keine Selbstmedikationsempfehlung.
+  </div>
+
+  <div class="vv-footer">Vis-Vitalis · Patrick Engels · vis-vitalis.nl</div>
+</div>
+
+<script>
+const DB = {
+  "hoch|hoch": {
+    type:"amber",badge:"Dringend",
+    title:"Funktioneller B12-Mangel (primär)",
+    snps:"Funktioneller B12-Mangel als primäre Ursache · MUT-Enzymdefekt (selten) · MTHFR/MTR additiv möglich",
+    patho:"Adenosyl-B12 ↓ → MUT blockiert → Methylmalonyl-CoA akkumuliert; gleichzeitig Remethylierung insuffizient durch B12-Mangel auf beiden Armen.",
+    prio:"B12-Status klären: Holo-Transcobalamin + Serum-B12 zwingend vor Supplementierung. Dann gezielte Substitution.",
+    mikro:[
+      {dot:"amber",text:"Methylcobalamin 1000 µg/d sublingual (Erstmittel)"},
+      {dot:"amber",text:"Hydroxocobalamin 1000 µg/d als Alternative"},
+      {dot:"amber",text:"5-MTHF 400–800 µg/d (Remethylierung unterstützen)"},
+      {dot:"amber",text:"Riboflavin/B2 10–20 mg/d (MTHFR-Stabilisator)"},
+    ],
+    warning:"Holo-TC und Serum-B12 vor Supplementierung bestimmen. Bei MMA↑+Hcy↑ immer B12-Mangel ausschließen bevor SNP-Fokus.",
+    confound:null
+  },
+  "normal|hoch": {
+    type:"blue",badge:"SNP-Fokus",
+    title:"Remethylierungsstörung (Enzym-SNPs)",
+    snps:"MTHFR C677T / A1298C · MTR A2756G · MTRR A66G · BHMT R239Q · CBS-SNP (additiv möglich)",
+    patho:"B12-Status funktionell OK (MUT intakt — normales MMA). Engpass liegt im Remethylierungsweg durch Enzym-SNPs. Trans-sulfurierung evtl. kompensiert.",
+    prio:"Gezielte Remethylierungs-unterstützung. Laborverlaufskontrolle nach 6–8 Wochen. SNP-Panel erwägen.",
+    mikro:[
+      {dot:"blue",text:"5-MTHF 800–1000 µg/d (aktives Folat, umgeht MTHFR-Engpass)"},
+      {dot:"blue",text:"Methylcobalamin 500–1000 µg/d sublingual"},
+      {dot:"blue",text:"Riboflavin/B2 20–30 mg/d (MTHFR C677T stabilisieren)"},
+      {dot:"blue",text:"Betain/TMG 1–3 g/d (BHMT-Bypass: B12/Folat-unabhängige Remethylierung)"},
+      {dot:"blue",text:"P5P 25–50 mg/d additiv bei CBS-SNP-Hinweis"},
+    ],
+    warning:null,confound:null
+  },
+  "niedrig|hoch": {
+    type:"blue",badge:"SNP-Fokus",
+    title:"Remethylierungsstörung, MUT effizient",
+    snps:"MTHFR/MTR/MTRR-SNPs · BHMT-Defizienz · CBS-SNP möglich · Hohe Propionat-Last unwahrscheinlich",
+    patho:"MUT-Aktivität effizient (ausreichend Adenosyl-B12). Engpass liegt ausschließlich im Remethylierungsweg. Evtl. erhöhter Methylgruppenverbrauch.",
+    prio:"Methylierungsweg optimieren. Propionat-Substrat prüfen (Ernährung, Mikrobiom). SNP-Analyse sinnvoll.",
+    mikro:[
+      {dot:"blue",text:"5-MTHF 800–1000 µg/d"},
+      {dot:"blue",text:"Methylcobalamin 1000 µg/d sublingual"},
+      {dot:"blue",text:"Riboflavin/B2 20–30 mg/d"},
+      {dot:"blue",text:"Betain/TMG 1–2 g/d"},
+      {dot:"blue",text:"P5P 25 mg/d bij CBS-Hinweis"},
+    ],
+    warning:null,confound:null
+  },
+  "hoch|niedrig": {
+    type:"amber",badge:"Confounder prüfen",
+    title:"MMA↑ zonder Hcy-Erhöhung — B12 geen primäre factor",
+    snps:"Renale Insuffizienz (eGFR ↓) · Hohe Propionat-Last / ungeradzahlige Fettsäuren · MUT-Genmutation (selten)",
+    patho:"Hcy wird normal remethyliert oder ausreichend trans-sulfuriert. MMA-Erhöhung ist KEIN B12-Signal in diesem Muster → Confounders zwingend ausschließen.",
+    prio:"Nierenfunktion: eGFR + Kreatinin. Ernährungsanamnese: Ruminantenfett (Butter, Käse, Lamm). Mikrobiom-Status evaluieren.",
+    mikro:[
+      {dot:"neutral",text:"Kein B12 / Folat primär indiziert"},
+      {dot:"neutral",text:"Omega-3 bei hohem Konsum ungeradzahliger Fettsäuren"},
+      {dot:"neutral",text:"Probiotika/Präbiotika wenn Mikrobiom als Quelle vermutet"},
+      {dot:"neutral",text:"Nierenspezifisches Management wenn eGFR ↓"},
+    ],
+    warning:"Keine B12-Supplementierung ohne vorherige Abklärung der Ursache — das MMA↑ ist hier kein Vitaminmangel-Signal.",
+    confound:"Confounders: (1) Nierenfunktion (eGFR, Kreatinin), (2) Ernährung (tierische Fette, BCAA-reich), (3) Darmmikrobiom (Propionat-Produzenten)."
+  },
+  "normal|niedrig": {
+    type:"green",badge:"Kein Handlungsbedarf",
+    title:"Normalbefund — ausreichende Methylierungskapazität",
+    snps:"Keine relevante Pathologie · Ausreichend B12 und Methylierungskapazität",
+    patho:"Beide Marker im Zielbereich. Stoffwechsel adäquat. Hcy kann bei Bedarf noch durch Diät und Lifestyle optimiert werden.",
+    prio:"Keine spezifische Supplementierung indiziert. Präventiv: ausgewogene B-Vitamin-Versorgung über Ernährung.",
+    mikro:[
+      {dot:"green",text:"B-Komplex in physiologischer Dosierung (Erhaltung)"},
+      {dot:"green",text:"Ausreichend Folat über Ernährung (Blattgemüse, Hülsenfrüchte)"},
+      {dot:"green",text:"Keine hochdosierte Einzelsupplementierung indiziert"},
+    ],
+    warning:null,confound:null
+  },
+  "niedrig|niedrig": {
+    type:"green",badge:"Optimalbefund",
+    title:"Optimaler Methylierungsstatus",
+    snps:"Keine relevante Pathologie · Optimaler Methylierungsstatus",
+    patho:"MUT-Reaktion effizient. Hcy-Remethylierung und/oder Trans-sulfurierung adäquat. Sehr günstiges Muster.",
+    prio:"Kein Handlungsbedarf. Präventiven Erhalt durch ausgewogene Ernährung sicherstellen.",
+    mikro:[
+      {dot:"green",text:"Keine Intervention nötig"},
+      {dot:"green",text:"B-Vitamine aus Ernährung ausreichend"},
+    ],
+    warning:null,confound:null
+  },
+  "hoch|normal": {
+    type:"amber",badge:"Confounder prüfen",
+    title:"MMA↑ bij normaal Hcy — Confounders leidend",
+    snps:"Renale Insuffizienz (häufigste Ursache) · Hohe Propionat-Last / ungeradzahlige Fettsäuren · MUT-Polymorphismus",
+    patho:"Hcy wird ausreichend metabolisiert. MMA-Erhöhung ist kein B12-Signal → Confounders zwingend ausschließen vor jeder Intervention.",
+    prio:"Nierenfunktion & Ernährung prüfen. Erst nach Confounder-Ausschluss ggf. gezielt intervenieren.",
+    mikro:[
+      {dot:"neutral",text:"Keine B12-Supplementierung primär indiziert"},
+      {dot:"neutral",text:"Nierenunterstützung wenn eGFR ↓"},
+      {dot:"neutral",text:"Ernährungsanpassung (tierische Fette, BCAA reduzieren)"},
+    ],
+    warning:"Keine B12-Gabe ohne Ursachenklärung. MMA↑ + Hcy normal ist typisch voor renale Retention, nicht für Vitaminmangel.",
+    confound:"Prüfen: eGFR, Kreatinin, Ernährungsprotokoll (Ruminantenfett), Darm-Mikrobiom-Status."
+  },
+  "normal|normal": {
+    type:"green",badge:"Normalbefund",
+    title:"Unauffälliger Befund",
+    snps:"Normalbefund · Keine funktionelle Defizienz",
+    patho:"Beide Wege funktionell intakt. Kein Hinweis auf relevante Enzymstörung oder Vitaminmangel.",
+    prio:"Keine Intervention indiziert.",
+    mikro:[
+      {dot:"green",text:"Ausgewogene Ernährung ausreichend"},
+      {dot:"green",text:"Keine gezielte Supplementierung"},
+    ],
+    warning:null,confound:null
+  },
+  "niedrig|normal": {
+    type:"green",badge:"Normalbefund",
+    title:"Günstige MUT-Aktivität, Hcy adäquat",
+    snps:"Normalbefund mit günstiger MUT-Aktivität · Niedrig-normale Propionat-Last",
+    patho:"Unauffälliges Muster. Niedriges MMA reflektiert effiziente Adenosyl-B12-abhängige Reaktion.",
+    prio:"Keine Intervention.",
+    mikro:[
+      {dot:"green",text:"Keine spezifische Supplementierung"},
+      {dot:"green",text:"Erhaltung durch ausgewogene Ernährung"},
+    ],
+    warning:null,confound:null
+  }
+};
+
+function render(){
+  const mma = document.getElementById("mma").value;
+  const hcy = document.getElementById("hcy").value;
+  const out = document.getElementById("output");
+  if(!mma||!hcy){
+    out.innerHTML='<div class="empty-state">Bitte beide Werte auswählen</div>';
+    return;
+  }
+  const d = DB[mma+"|"+hcy];
+  if(!d){out.innerHTML="<p>Keine Daten</p>";return;}
+  const mikroHtml = d.mikro.map(m=>`<li><span class="mikro-dot ${m.dot}"></span><span>${m.text}</span></li>`).join("");
+  const warnHtml = d.warning?`<div class="warning-box"><strong>Hinweis:</strong> ${d.warning}</div>`:"";
+  const confHtml = d.confound?`<div class="confound-box"><strong>Differentialdiagnostik:</strong> ${d.confound}</div>`:"";
+  out.innerHTML=`
+<div class="result-card ${d.type}">
+  <span class="badge ${d.type}">${d.badge}</span>
+  <div class="result-title">${d.title}</div>
+  <div class="section-label">Wahrscheinliche Ursache / SNPs</div>
+  <div class="section-content">${d.snps}</div>
+  <div class="section-label">Pathophysiologie</div>
+  <div class="section-content">${d.patho}</div>
+  <div class="section-label">Diagnostische Priorität</div>
+  <div class="section-content">${d.prio}</div>
+  <div class="section-label">Mikronährstoffe (1. Wahl)</div>
+  <ul class="mikro-list">${mikroHtml}</ul>
+  ${warnHtml}${confHtml}
+</div>`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mito-Mikronährstoff-SNP Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#007DA5;
+  --blue-dark:#005f80;
+  --blue-light:#EDF6FA;
+  --blue-mid:#C5DDE8;
+  --orange:#F89C53;
+  --orange-dark:#c07000;
+  --orange-light:#FFF8EE;
+  --dark:#1A2E35;
+  --mid:#4A6572;
+  --muted:#7F9BA6;
+  --grey-light:#F7FBFD;
+  --white:#ffffff;
+  --red:#c0392b;
+  --red-light:#fde8e8;
+  --green:#2a7a50;
+  --green-light:#e8f7ef;
+  --border:#C5DDE8;
+  --radius:10px;
+  --shadow:0 2px 12px rgba(0,125,165,0.08);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Open Sans',sans-serif;
+  font-size:14px;
+  color:var(--dark);
+  background:#F0F7FA;
+  min-height:100vh;
+  line-height:1.6;
+}
+
+/* ── Layout ───────────────────────────────────── */
+.page-header{
+  background:var(--blue);
+  padding:2rem 1rem;
+  text-align:center;
+}
+.page-header h1{
+  font-family:'Montserrat',sans-serif;
+  font-size:clamp(1.3rem,3vw,1.9rem);
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:0.4rem;
+}
+.page-header p{
+  font-size:13px;
+  color:rgba(255,255,255,0.75);
+  max-width:560px;
+  margin:0 auto;
+}
+.logo-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:1rem;
+}
+.logo-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--orange);
+}
+.logo-text{
+  font-family:'Montserrat',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:rgba(255,255,255,0.6);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.container{
+  max-width:720px;
+  margin:0 auto;
+  padding:1.5rem 1rem 3rem;
+}
+
+/* ── Cards ────────────────────────────────────── */
+.card{
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:1rem;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.card-header{
+  padding:0.9rem 1.25rem;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  user-select:none;
+  transition:background 0.15s;
+}
+.card-header:hover{background:var(--blue-light)}
+.card-header-left{flex:1}
+.card-title{
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--blue);
+}
+.card-sub{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+.card-badge{
+  font-family:'Montserrat',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  padding:3px 12px;
+  border-radius:20px;
+  margin-left:12px;
+  white-space:nowrap;
+  flex-shrink:0;
+  transition:all 0.2s;
+}
+.badge-none{background:var(--blue-light);color:var(--blue)}
+.badge-low{background:#e0f5eb;color:#2a7a50}
+.badge-mid{background:#fff3e0;color:var(--orange-dark)}
+.badge-high{background:var(--red-light);color:var(--red)}
+.chevron{
+  font-size:16px;
+  color:var(--muted);
+  margin-left:10px;
+  transition:transform 0.2s;
+  flex-shrink:0;
+}
+.chevron.open{transform:rotate(180deg)}
+.card-body{
+  border-top:0.5px solid var(--blue-light);
+  display:none;
+}
+.card-body.open{display:block}
+
+/* ── Intro card ───────────────────────────────── */
+.intro-card{
+  background:var(--blue-light);
+  border:0.5px solid var(--blue);
+  border-radius:var(--radius);
+  padding:1rem 1.25rem;
+  margin-bottom:1rem;
+  font-size:13px;
+  color:var(--dark);
+  line-height:1.65;
+}
+.intro-card strong{color:var(--blue)}
+
+/* ── Entry question ───────────────────────────── */
+.entry-section{
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:1rem 1.25rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow);
+}
+.section-eyebrow{
+  font-family:'Montserrat',sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  color:var(--blue);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.entry-q{
+  font-size:13px;
+  color:var(--dark);
+  margin-bottom:12px;
+  line-height:1.5;
+}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-btn{
+  font-family:'Open Sans',sans-serif;
+  font-size:12px;
+  padding:6px 18px;
+  border-radius:20px;
+  border:0.5px solid var(--border);
+  background:var(--white);
+  color:var(--mid);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.radio-btn:hover{background:var(--blue-light)}
+.radio-btn.active-ja{
+  background:var(--orange);
+  border-color:var(--orange);
+  color:var(--white);
+  font-weight:600;
+}
+.radio-btn.active-nein{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:var(--white);
+  font-weight:600;
+}
+
+/* ── Score bar ────────────────────────────────── */
+.score-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:1rem;
+}
+.score-card{
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:8px;
+  padding:10px 8px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+.score-label{
+  font-family:'Montserrat',sans-serif;
+  font-size:9px;
+  font-weight:700;
+  color:var(--blue);
+  letter-spacing:0.5px;
+  margin-bottom:3px;
+  text-transform:uppercase;
+}
+.score-sub{
+  font-size:10px;
+  color:var(--muted);
+  margin-bottom:4px;
+  line-height:1.3;
+}
+.score-num{
+  font-family:'Montserrat',sans-serif;
+  font-size:22px;
+  font-weight:700;
+}
+.sn-none{color:var(--blue-mid)}
+.sn-low{color:#2a7a50}
+.sn-mid{color:var(--orange-dark)}
+.sn-high{color:var(--red)}
+
+/* ── Questions ────────────────────────────────── */
+.q-list{padding:0 1.25rem 1rem}
+.q-row{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:11px 0;
+  border-bottom:0.5px solid var(--blue-light);
+}
+.q-row:last-child{border-bottom:none}
+.q-text{
+  font-size:13px;
+  color:var(--dark);
+  line-height:1.5;
+  flex:1;
+}
+.q-btns{display:flex;gap:6px;flex-shrink:0;padding-top:2px}
+.q-btn{
+  font-family:'Open Sans',sans-serif;
+  font-size:12px;
+  padding:5px 13px;
+  border-radius:20px;
+  border:0.5px solid var(--border);
+  background:var(--white);
+  color:var(--mid);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.q-btn:hover{background:var(--blue-light)}
+.q-btn.sel-ja{
+  background:var(--red);
+  border-color:var(--red);
+  color:var(--white);
+  font-weight:600;
+}
+.q-btn.sel-nein{
+  background:#2a7a50;
+  border-color:#2a7a50;
+  color:var(--white);
+  font-weight:600;
+}
+
+/* ── SNP Section ──────────────────────────────── */
+.snp-section{
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:1rem;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.snp-header{
+  background:var(--dark);
+  padding:0.9rem 1.25rem;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  user-select:none;
+}
+.snp-header:hover{background:#243840}
+.snp-title{
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--white);
+}
+.snp-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px}
+.snp-body{
+  border-top:0.5px solid var(--blue-light);
+  display:none;
+  padding:1rem 1.25rem;
+}
+.snp-body.open{display:block}
+.snp-intro{
+  font-size:12px;
+  color:var(--mid);
+  margin-bottom:1rem;
+  line-height:1.6;
+  padding:10px 14px;
+  background:var(--grey-light);
+  border-radius:6px;
+  border-left:3px solid var(--blue-mid);
+}
+.snp-row{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:0.5px solid var(--blue-light);
+}
+.snp-row:last-child{border-bottom:none}
+.snp-label{
+  flex:1;
+}
+.snp-name{
+  font-size:13px;
+  font-weight:600;
+  color:var(--dark);
+}
+.snp-desc{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+.snp-options{
+  display:flex;
+  gap:6px;
+  flex-shrink:0;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:280px;
+}
+.snp-btn{
+  font-family:'Open Sans',sans-serif;
+  font-size:11px;
+  padding:5px 11px;
+  border-radius:20px;
+  border:0.5px solid var(--border);
+  background:var(--white);
+  color:var(--mid);
+  cursor:pointer;
+  transition:all 0.15s;
+  white-space:nowrap;
+}
+.snp-btn:hover{background:var(--blue-light)}
+.snp-btn.sel-auff{
+  background:var(--orange);
+  border-color:var(--orange);
+  color:var(--white);
+  font-weight:600;
+}
+.snp-btn.sel-unauf{
+  background:#2a7a50;
+  border-color:#2a7a50;
+  color:var(--white);
+  font-weight:600;
+}
+.snp-btn.sel-unbek{
+  background:var(--mid);
+  border-color:var(--mid);
+  color:var(--white);
+  font-weight:600;
+}
+
+/* ── Actions ──────────────────────────────────── */
+.actions{
+  display:flex;
+  gap:10px;
+  margin:1.25rem 0;
+  flex-wrap:wrap;
+}
+.btn-primary{
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  padding:12px 28px;
+  border-radius:8px;
+  border:none;
+  background:var(--blue);
+  color:var(--white);
+  cursor:pointer;
+  letter-spacing:0.3px;
+  transition:background 0.15s;
+  flex:1;
+  min-width:160px;
+}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-reset{
+  font-family:'Open Sans',sans-serif;
+  font-size:13px;
+  padding:12px 20px;
+  border-radius:8px;
+  border:0.5px solid var(--border);
+  background:var(--white);
+  color:var(--mid);
+  cursor:pointer;
+  transition:background 0.15s;
+}
+.btn-reset:hover{background:var(--blue-light)}
+
+/* ── Result ───────────────────────────────────── */
+.result{display:none}
+.result.show{display:block}
+.result-card{
+  border-radius:var(--radius);
+  padding:1.25rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow);
+}
+.res-a{background:var(--green-light);border:0.5px solid #2a7a50}
+.res-b{background:var(--orange-light);border:0.5px solid var(--orange)}
+.res-c{background:var(--blue-light);border:0.5px solid var(--blue)}
+.result-head{
+  font-family:'Montserrat',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+.res-a .result-head{color:var(--green)}
+.res-b .result-head{color:var(--orange-dark)}
+.res-c .result-head{color:var(--blue)}
+.result-body{font-size:13px;line-height:1.7;color:var(--dark)}
+.result-body p{margin-bottom:8px}
+.result-body ul{padding-left:1.2rem;margin-bottom:8px}
+.result-body li{margin-bottom:5px}
+.result-body strong{font-weight:600}
+
+/* ── SNP result block ─────────────────────────── */
+.snp-result{
+  margin-top:12px;
+  padding:12px 16px;
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:8px;
+}
+.snp-result-title{
+  font-family:'Montserrat',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:var(--dark);
+  margin-bottom:8px;
+}
+.snp-tag-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:8px;
+}
+.snp-tag{
+  font-size:11px;
+  padding:3px 10px;
+  border-radius:20px;
+  font-weight:600;
+}
+.tag-auff{background:var(--orange-light);color:var(--orange-dark);border:0.5px solid var(--orange)}
+.tag-unauf{background:var(--green-light);color:var(--green);border:0.5px solid #2a7a50}
+.tag-unbek{background:#f1efe8;color:var(--muted);border:0.5px solid #ccc}
+.snp-advice{font-size:12px;color:var(--mid);line-height:1.6}
+
+/* ── Protocol block ───────────────────────────── */
+.protocol-block{
+  margin-top:14px;
+  background:var(--white);
+  border:0.5px solid var(--blue);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.protocol-head{
+  background:var(--blue);
+  padding:10px 16px;
+  font-family:'Montserrat',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  color:var(--white);
+  letter-spacing:0.8px;
+  text-transform:uppercase;
+}
+.protocol-body{padding:14px 16px}
+.protocol-body p{font-size:12px;color:var(--mid);margin-bottom:12px;line-height:1.55}
+.protocol-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.protocol-table th{
+  background:var(--blue-light);
+  color:var(--blue);
+  font-family:'Montserrat',sans-serif;
+  font-size:10px;
+  font-weight:700;
+  padding:7px 10px;
+  text-align:left;
+  letter-spacing:0.4px;
+  border-bottom:0.5px solid var(--border);
+}
+.protocol-table td{
+  padding:8px 10px;
+  border-bottom:0.5px solid var(--blue-light);
+  color:var(--dark);
+  vertical-align:top;
+  line-height:1.4;
+}
+.protocol-table tr:last-child td{border-bottom:none}
+.protocol-table tr:nth-child(even) td{background:var(--grey-light)}
+.protocol-table .prod-name{font-weight:600;color:var(--dark)}
+.protocol-table .prod-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.protocol-link{
+  display:inline-block;
+  padding:9px 20px;
+  background:var(--orange);
+  color:var(--white);
+  border-radius:8px;
+  font-family:'Montserrat',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  text-decoration:none;
+  transition:background 0.15s;
+  margin-bottom:8px;
+}
+.protocol-link:hover{background:var(--orange-dark)}
+.protocol-disclaimer{font-size:11px;color:var(--muted);font-style:italic;line-height:1.5}
+
+/* ── Suppl note ───────────────────────────────── */
+.suppl-note{
+  margin-top:12px;
+  padding:10px 14px;
+  background:var(--orange-light);
+  border:0.5px solid var(--orange);
+  border-radius:8px;
+  font-size:12px;
+  color:#7a4a00;
+  line-height:1.6;
+}
+.suppl-note strong{color:var(--orange-dark)}
+
+/* ── Lab table ────────────────────────────────── */
+.lab-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.lab-table tr{border-bottom:0.5px solid var(--blue-light)}
+.lab-table tr:last-child{border-bottom:none}
+.lab-table td{padding:6px 4px;vertical-align:top}
+.lab-table td:first-child{font-weight:600;color:var(--blue);white-space:nowrap;padding-right:12px;min-width:160px}
+.lab-table td:last-child{color:var(--mid)}
+
+/* ── Footer ───────────────────────────────────── */
+footer{
+  text-align:center;
+  padding:2rem 1rem;
+  font-size:11px;
+  color:var(--muted);
+}
+footer a{color:var(--blue);text-decoration:none}
+
+/* ── Progress bar ─────────────────────────────── */
+.progress-wrap{
+  background:var(--blue-light);
+  border-radius:4px;
+  height:4px;
+  margin-bottom:1.25rem;
+  overflow:hidden;
+}
+.progress-bar{
+  height:100%;
+  background:var(--blue);
+  border-radius:4px;
+  transition:width 0.4s ease;
+}
+
+/* ── Responsive ───────────────────────────────── */
+@media(max-width:520px){
+  .score-grid{grid-template-columns:repeat(2,1fr)}
+  .snp-options{max-width:none;justify-content:flex-start}
+  .snp-row{flex-direction:column}
+  .q-row{flex-direction:column;gap:8px}
+  .q-btns{padding-top:0}
+  .actions{flex-direction:column}
+  .btn-primary{flex:none;width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="logo-bar">
+    <div class="logo-dot"></div>
+    <span class="logo-text">Vis-Vitalis · Functional Medicine</span>
+  </div>
+  <h1>Mito-Mikronährstoff-SNP Check</h1>
+  <p>Strukturierte Orientierung für die nächsten therapeutischen Schritte — kein Laborbefund, kein Diagnoseinstrument.</p>
+</header>
+
+<div class="container">
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <!-- Intro -->
+  <div class="intro-card">
+    Bitte beantworten Sie alle Fragen so vollständig wie möglich.
+    Das Ergebnis zeigt, in welchem Bereich der primäre Engpass liegt —
+    und welcher nächste Schritt sinnvoll ist.
+    <strong>Dieser Check ersetzt keine ärztliche Diagnose.</strong>
+  </div>
+
+  <!-- Einstiegsfrage -->
+  <div class="entry-section">
+    <div class="section-eyebrow">Einstiegsfrage</div>
+    <div class="entry-q">Haben Sie bereits Mikronährstoffe supplementiert (CoQ10, Magnesium, B-Vitamine o.ä.)?</div>
+    <div class="radio-group">
+      <button class="radio-btn" id="eb-ja"   onclick="setEntry(true)">Ja</button>
+      <button class="radio-btn" id="eb-nein" onclick="setEntry(false)">Nein</button>
+    </div>
+  </div>
+
+  <!-- Score overview -->
+  <div class="score-grid">
+    <div class="score-card">
+      <div class="score-label">Modul 1</div>
+      <div class="score-sub">Energie &amp;<br>Kofaktoren</div>
+      <div class="score-num sn-none" id="sc0">—</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Modul 2</div>
+      <div class="score-sub">Ox. Stress &amp;<br>Entgiftung</div>
+      <div class="score-num sn-none" id="sc1">—</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Modul 3</div>
+      <div class="score-sub">Entzündung &amp;<br>Immunität</div>
+      <div class="score-num sn-none" id="sc2">—</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Modul 4</div>
+      <div class="score-sub">Neuro-endokrine<br>Achse</div>
+      <div class="score-num sn-none" id="sc3">—</div>
+    </div>
+  </div>
+
+  <!-- Modules -->
+  <div id="modules"></div>
+
+  <!-- SNP Section -->
+  <div class="snp-section">
+    <div class="snp-header" onclick="toggleSNP()">
+      <div>
+        <div class="snp-title">SNP-Profil — Genetische Stoffwechselengpässe</div>
+        <div class="snp-sub">Optional · sofern ein SNP-Panel vorliegt</div>
+      </div>
+      <span class="chevron" id="snp-chevron">▾</span>
+    </div>
+    <div class="snp-body" id="snp-body">
+      <div class="snp-intro">
+        Falls ein SNP-Test (z.B. DNA Health) vorliegt: Geben Sie an, ob in den folgenden Bereichen
+        auffällige genetische Varianten bekannt sind. Falls kein Test vorliegt, wählen Sie
+        <em>„Unbekannt"</em> — der Check funktioniert auch ohne SNP-Daten.
+      </div>
+      <div id="snp-rows"></div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-primary" onclick="evaluate()">Auswertung anzeigen</button>
+    <button class="btn-reset"   onclick="resetAll()">Zurücksetzen</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="result"></div>
+
+</div>
+
+<footer>
+  <p>Vis-Vitalis · Patrick Engels — Klinische Ernährungsberatung &amp; Funktionelle Medizin</p>
+  <p style="margin-top:4px"><a href="https://vis-vitalis.nl" target="_blank">vis-vitalis.nl</a></p>
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+
+const MODULES = [
+  {
+    title: "Modul 1 — Energieproduktion & Kofaktoren",
+    sub:   "Substrate · Atmungsketten-Kofaktoren · Medikamente",
+    qs: [
+      "Fühlen Sie sich morgens nach ausreichend Schlaf nicht erholt oder energielos?",
+      "Nehmen Sie Statine, Metformin oder Protonenpumpenhemmer (PPI) ein?",
+      "Essen Sie selten Nüsse, Hülsenfrüchte, Vollkorn oder Innereien?",
+      "Erleben Sie regelmäßig einen deutlichen Energieabfall am Nachmittag?",
+      "Erholen Sie sich nach körperlicher Belastung erst nach mehr als 48 Stunden?"
+    ],
+    recs: [
+      "CoQ10 als <strong>Ubiquinol</strong> (nicht Ubiquinon) — besonders ab 40 Jahren",
+      "Magnesium (Glycinat oder Malat) 300–400 mg/d — ATP-Synthase-Kofaktor",
+      "B-Komplex in aktiven Formen (Riboflavin-5-Phosphat · P5P · Methylcobalamin)",
+      "L-Carnitin (Tartrat oder Fumarat) bei eingeschränkter Fettverwertung",
+      "Thiamin (B1) als Benfotiamin — Kofaktor Pyruvat-Dehydrogenase"
+    ]
+  },
+  {
+    title: "Modul 2 — Oxidativer Stress & Entgiftung",
+    sub:   "ROS-Belastung · Toxinexposition · antioxidative Kapazität",
+    qs: [
+      "Reagieren Sie empfindlicher auf Alkohol, Koffein oder Medikamente als andere?",
+      "Sind Sie regelmäßig Umweltbelastungen ausgesetzt (Verkehr, Chemikalien, Pestizide)?",
+      "Fühlen Sie sich nach intensivem Sport schlechter statt besser?",
+      "Haben Sie eine bekannte Unverträglichkeit gegenüber Duftstoffen oder Chemikalien?",
+      "Essen Sie wenig Kreuzblütler- oder Alliumgemüse (Brokkoli, Knoblauch, Zwiebeln)?"
+    ],
+    recs: [
+      "Selen 150–200 µg/d (Selenmethionin) — Kofaktor GPX und Deiodinase",
+      "Mangan 2–5 mg/d — Kofaktor MnSOD (mitochondriale Superoxiddismutase)",
+      "Alpha-Liponsäure 300–600 mg/d — universelles Antioxidans",
+      "NAC 600 mg/d — Glutathion-Vorläufer, Schwermetall-Antagonist",
+      "Sulforaphan (Brokkolisprossen-Extrakt) — Nrf2/Phase-II-Induktion"
+    ]
+  },
+  {
+    title: "Modul 3 — Entzündung & Immunaktivierung",
+    sub:   "Chronische Entzündungszeichen · Infektlast · Omega-3",
+    qs: [
+      "Haben Sie diffuse Gelenk- oder Muskelschmerzen ohne klare Ursache?",
+      "Leiden Sie unter häufigen Infekten oder verlängerter Rekonvaleszenz?",
+      "Ist Ihr CRP-Wert erhöht oder wurden Sie diesbezüglich nie untersucht?",
+      "Essen Sie weniger als 2× pro Woche fetten Fisch (Lachs, Makrele, Sardinen)?",
+      "Haben Sie eine bekannte Autoimmunerkrankung oder chronische Entzündungskrankheit?"
+    ],
+    recs: [
+      "Omega-3 EPA+DHA mind. <strong>2–3 g/d</strong> — hochdosiert, marine Quellen",
+      "Curcumin in bioverfügbarer Form (Phytosom oder mit Piperin) 500–1000 mg/d",
+      "Vitamin D3 + K2 — 25-OH-D3 messen, Ziel 60–80 nmol/L",
+      "Resveratrol / Quercetin als Entzündungsmodulatoren",
+      "Zink 15–25 mg/d — Immunregulation und antioxidativer Schutz"
+    ]
+  },
+  {
+    title: "Modul 4 — Neuro-endokrine Belastung",
+    sub:   "Stressachse · Schlaf · Insulinresistenz · Schilddrüse",
+    qs: [
+      "Stehen Sie seit mehr als 3 Monaten unter chronischem Stress?",
+      "Schlafen Sie schlecht ein oder wachen Sie früh auf (3–4 Uhr)?",
+      "Haben Sie ungewollt Gewicht zugenommen — besonders am Bauch?",
+      "Haben Sie ein ausgeprägtes Verlangen nach Süßem oder Kohlenhydraten?",
+      "Fühlen Sie sich hypothyreot (Kälte, Müdigkeit, trockene Haut) trotz normalem TSH?"
+    ],
+    recs: [
+      "Ashwagandha (KSM-66) 300–600 mg/d — adaptogen, Cortisol-Modulation",
+      "Magnesium (Glycinat, abends) — Schlaf und HPA-Regulation",
+      "Phosphatidylserin 300 mg/d — Cortisol-Modulation am Abend",
+      "Chrom 200 µg/d + Berberin 500 mg — Blutzucker-Stabilisierung",
+      "Selen + Zink + Jod — Kofaktoren Deiodinase (rT3-Normalisierung)"
+    ]
+  }
+];
+
+const SNP_CATEGORIES = [
+  {
+    id:   "methyl",
+    name: "Methylierung",
+    desc: "z.B. MTHFR · COMT · MTR · CBS",
+    advice: {
+      auff:  "Aktive B-Vitamine priorisieren: L-Methylfolat (5-MTHF) statt Folsäure, Methylcobalamin statt Cyanocobalamin. Magnesium als COMT-Kofaktor. Homocystein und aktives B12 im Labor kontrollieren.",
+      unauf: "Methylierungswege unauffällig — Standard-B-Vitamin-Versorgung ausreichend.",
+      unbek: "Methylierungsstatus unbekannt. Bei anhaltenden Beschwerden SNP-Panel oder Basislabor (Hcy, aktives B12) erwägen."
+    }
+  },
+  {
+    id:   "oxstress",
+    name: "Oxidativer Stress",
+    desc: "z.B. MnSOD · CAT · GPX1",
+    advice: {
+      auff:  "Antioxidativen Schutz gezielt aufbauen: Mangan (MnSOD-Kofaktor), Selen (GPX-Kofaktor), NAC. Sulforaphan als Nrf2-Aktivator — kompensiert fehlende oder reduzierte Enzymaktivität über alternative Wege.",
+      unauf: "Antioxidative Enzyme genetisch unauffällig — Basisversorgung mit Selen und Vitamin C/E ausreichend.",
+      unbek: "Oxidativer Stress-Status unbekannt. Bei Toxinexposition oder schlechter Sportverträglichkeit SNP-Panel erwägen."
+    }
+  },
+  {
+    id:   "entgift",
+    name: "Entgiftung",
+    desc: "z.B. GSTM1 · GSTT1 · GSTP1 · NQO1",
+    advice: {
+      auff:  "Phase-II-Kapazität eingeschränkt. Kreuzblütler- und Alliumgemüse erhöhen — aktivieren alternative GST-Enzyme. DIM und Sulforaphan als gezielte Ergänzung. Toxinexposition (Schwermetalle, Pestizide, Rauchen) konsequent reduzieren.",
+      unauf: "Entgiftungsenzyme genetisch unauffällig — ausreichend Gemüse für optimale Phase-II-Funktion.",
+      unbek: "Entgiftungsstatus unbekannt. Bei Chemikalienempfindlichkeit oder Umweltexposition SNP-Panel sinnvoll."
+    }
+  },
+  {
+    id:   "entzuend",
+    name: "Entzündung",
+    desc: "z.B. IL-1B · IL-6 · TNFA · FADS1",
+    advice: {
+      auff:  "Genetisch erhöhte Entzündungsbereitschaft. Omega-3 hochdosiert (≥2g EPA+DHA/d) ist hier nicht optional — es adressiert direkt den FADS1-Bias. Curcumin, Resveratrol und mediterrane Ernährung als feste Bestandteile. Entzündungsmarker (HsCRP) regelmäßig kontrollieren.",
+      unauf: "Entzündungsregulation genetisch unauffällig — präventive Omega-3-Versorgung (1g/d) ausreichend.",
+      unbek: "Entzündungsgenetik unbekannt. Bei diffusen Schmerzen oder erhöhtem CRP SNP-Panel oder HsCRP-Messung erwägen."
+    }
+  },
+  {
+    id:   "vitd",
+    name: "Vitamin D-Stoffwechsel",
+    desc: "z.B. CYP2R1 · VDR · GC",
+    advice: {
+      auff:  "Erhöhtes Vitamin-D-Mangelrisiko (CYP2R1 GG: 3,7-fach). Regelmäßige Serumkontrolle (25-OH-D3) zwingend. Höhere Supplementationsdosen oft nötig. Vitamin D3 + K2 kombinieren.",
+      unauf: "Vitamin-D-Metabolismus genetisch unauffällig — Standard-Supplementation und Sonnenlichtexposition ausreichend.",
+      unbek: "Vitamin-D-Status unbekannt. 25-OH-D3 messen — gilt als einer der wichtigsten präventiven Laborwerte."
+    }
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+
+const ans  = MODULES.map(m => m.qs.map(() => null));
+const snps = {};
+SNP_CATEGORIES.forEach(c => snps[c.id] = null);
+let openMod = 0;
+let snpOpen = false;
+let entryVal = null;
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+
+function render() {
+  const wrap = document.getElementById('modules');
+  wrap.innerHTML = '';
+
+  MODULES.forEach((mod, mi) => {
+    const score    = ans[mi].filter(a => a === true).length;
+    const answered = ans[mi].filter(a => a !== null).length;
+
+    const badgeClass = answered === 0 ? 'badge-none'
+      : score >= 4 ? 'badge-high'
+      : score >= 2 ? 'badge-mid' : 'badge-low';
+    const badgeText = answered === 0 ? '—' : `${score} / 5`;
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div class="card-header" onclick="toggleMod(${mi})">
+        <div class="card-header-left">
+          <div class="card-title">${mod.title}</div>
+          <div class="card-sub">${mod.sub}</div>
+        </div>
+        <span class="card-badge ${badgeClass}">${badgeText}</span>
+        <span class="chevron ${openMod === mi ? 'open' : ''}" id="chev-${mi}">▾</span>
+      </div>
+      <div class="card-body ${openMod === mi ? 'open' : ''}" id="body-${mi}">
+        <div class="q-list">
+          ${mod.qs.map((q, qi) => `
+            <div class="q-row">
+              <div class="q-text">${q}</div>
+              <div class="q-btns">
+                <button class="q-btn ${ans[mi][qi] === true  ? 'sel-ja'   : ''}" onclick="setAns(${mi},${qi},true)">Ja</button>
+                <button class="q-btn ${ans[mi][qi] === false ? 'sel-nein' : ''}" onclick="setAns(${mi},${qi},false)">Nein</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    wrap.appendChild(div);
+
+    // Update score display
+    const sc = document.getElementById(`sc${mi}`);
+    sc.textContent = answered === 0 ? '—' : `${score}/5`;
+    sc.className   = 'score-num ' + (
+      answered === 0 ? 'sn-none' :
+      score >= 4 ? 'sn-high' :
+      score >= 2 ? 'sn-mid' : 'sn-low'
+    );
+  });
+
+  renderSNP();
+  updateProgress();
+}
+
+function renderSNP() {
+  const wrap = document.getElementById('snp-rows');
+  wrap.innerHTML = SNP_CATEGORIES.map((cat, i) => `
+    <div class="snp-row">
+      <div class="snp-label">
+        <div class="snp-name">${cat.name}</div>
+        <div class="snp-desc">${cat.desc}</div>
+      </div>
+      <div class="snp-options">
+        <button class="snp-btn ${snps[cat.id] === 'auff'  ? 'sel-auff'  : ''}" onclick="setSNP('${cat.id}','auff')">Auffällig</button>
+        <button class="snp-btn ${snps[cat.id] === 'unauf' ? 'sel-unauf' : ''}" onclick="setSNP('${cat.id}','unauf')">Unauffällig</button>
+        <button class="snp-btn ${snps[cat.id] === 'unbek' ? 'sel-unbek' : ''}" onclick="setSNP('${cat.id}','unbek')">Unbekannt</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateProgress() {
+  const total    = ans.flat().length + SNP_CATEGORIES.length + 1; // +1 entry
+  const answered = ans.flat().filter(a => a !== null).length
+                 + Object.values(snps).filter(v => v !== null).length
+                 + (entryVal !== null ? 1 : 0);
+  document.getElementById('progress-bar').style.width = Math.round((answered / total) * 100) + '%';
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────
+
+function toggleMod(mi) {
+  openMod = openMod === mi ? -1 : mi;
+  render();
+}
+
+function toggleSNP() {
+  snpOpen = !snpOpen;
+  document.getElementById('snp-body').classList.toggle('open', snpOpen);
+  document.getElementById('snp-chevron').classList.toggle('open', snpOpen);
+}
+
+function setAns(mi, qi, v) {
+  ans[mi][qi] = v;
+  render();
+  document.getElementById('result').className = 'result';
+}
+
+function setSNP(id, v) {
+  snps[id] = v;
+  renderSNP();
+  updateProgress();
+  document.getElementById('result').className = 'result';
+}
+
+function setEntry(v) {
+  entryVal = v;
+  document.getElementById('eb-ja').className   = 'radio-btn' + (v === true  ? ' active-ja'   : '');
+  document.getElementById('eb-nein').className = 'radio-btn' + (v === false ? ' active-nein' : '');
+  document.getElementById('result').className  = 'result';
+  updateProgress();
+}
+
+// ── EVALUATE ──────────────────────────────────────────────────────────────
+
+function evaluate() {
+  const scores   = ans.map(a => a.filter(v => v === true).length);
+  const total    = scores.reduce((s, v) => s + v, 0);
+  const answered = ans.flat().filter(a => a !== null).length;
+
+  if (answered < 12) {
+    alert('Bitte beantworten Sie mindestens drei Module vollständig für eine aussagekräftige Auswertung.');
+    return;
+  }
+
+  const names     = ['Energieproduktion & Kofaktoren','Oxidativer Stress & Entgiftung','Entzündung & Immunaktivierung','Neuro-endokrine Belastung'];
+  const highMods  = scores.map((s,i) => ({s,i})).filter(x => x.s >= 4);
+  const midMods   = scores.map((s,i) => ({s,i})).filter(x => x.s >= 2);
+  const auffSNPs  = SNP_CATEGORIES.filter(c => snps[c.id] === 'auff');
+  const hasAnySNP = Object.values(snps).some(v => v !== null);
+
+  // SNP result block
+  const snpBlock = hasAnySNP ? buildSNPBlock(auffSNPs) : '';
+
+  // Supplementierung-Hinweis
+  const supplNote = entryVal === true ? `
+    <div class="suppl-note">
+      <strong>Hinweis zur bisherigen Supplementierung:</strong>
+      Entscheidend sind die Darreichungsform (z.B. Ubiquinol statt Ubiquinon),
+      die Dosierung, die Kombination der Kofaktoren und — vor allem — der tatsächliche Engpass.
+      Dieser Check hilft, den richtigen Ansatzpunkt und die richtige Reihenfolge zu identifizieren.
+    </div>` : '';
+
+  const protocol = buildProtocol();
+
+  let html = '';
+
+  // ── OUTPUT A — klarer Engpass ──
+  if (highMods.length === 1 && midMods.length <= 2) {
+    const m = highMods[0];
+    html = `<div class="result-card res-a">
+      <div class="result-head">Primärer Engpass identifiziert — gezielte Substitution empfohlen</div>
+      <div class="result-body">
+        <p>Ihr Profil zeigt einen klaren Engpass im Bereich <strong>${names[m.i]}</strong> (${m.s}/5 Punkte).
+        Eine gezielte Mikronährstoffunterstützung ist der nächste sinnvolle Schritt.</p>
+        <p><strong>Priorität für Ihre Substitution:</strong></p>
+        <ul>${MODULES[m.i].recs.map(r => `<li>${r}</li>`).join('')}</ul>
+        ${supplNote}
+        ${snpBlock}
+        ${protocol}
+      </div>
+    </div>`;
+
+  // ── OUTPUT B — gemischtes Profil ──
+  } else if (midMods.length >= 2 || (total >= 6 && highMods.length === 0)) {
+    html = `<div class="result-card res-b">
+      <div class="result-head">Gemischtes Profil — Labordiagnostik vor Supplementierung empfohlen</div>
+      <div class="result-body">
+        <p>Ihr Profil zeigt Engpässe in mehreren Bereichen ohne klaren Schwerpunkt
+        (Gesamtscore: ${total}/20). Folgende Laborwerte schaffen Klarheit
+        bevor gezielt supplementiert wird:</p>
+        <table class="lab-table">
+          <tr><td>HsCRP</td><td>Entzündungsaktivität — Ausgangswert für Therapiekontrolle</td></tr>
+          <tr><td>Homocystein</td><td>Methylierungsstatus und kardiovaskulärer Stressmarker</td></tr>
+          <tr><td>25-OH-Vitamin D3</td><td>Mitochondriale Genexpression und Immunregulation</td></tr>
+          <tr><td>Ferritin</td><td>Eisen für Atmungskette und Eisen-Schwefel-Cluster</td></tr>
+          <tr><td>Holotranscobalamin</td><td>Aktives B12 — Kofaktor Zitratzyklus und Methylierung</td></tr>
+          <tr><td>fT3 + rT3</td><td>Funktioneller Schilddrüsenstatus — rT3 als Mito-Marker</td></tr>
+          <tr><td>Nüchterninsulin / HbA1c</td><td>Insulinresistenz als direkter Mitochondrien-Trigger</td></tr>
+        </table>
+        ${supplNote}
+        ${snpBlock}
+        ${protocol}
+      </div>
+    </div>`;
+
+  // ── OUTPUT C — hohes Gesamtprofil ──
+  } else if (total >= 10 || highMods.length >= 2) {
+    html = `<div class="result-card res-c">
+      <div class="result-head">Hohes Gesamtprofil — erweiterte Diagnostik sinnvoll</div>
+      <div class="result-body">
+        <p>Ihr Beschwerdebild deutet auf relevante Stoffwechselengpässe in mehreren Bereichen hin
+        (Gesamtscore: ${total}/20). Strukturierte Diagnostik vor der Therapie ist empfohlen:</p>
+        <ul>
+          <li>Erweitertes Basislabor: HsCRP · Hcy · 25-OH-D3 · Ferritin · aktives B12 · fT3/rT3 · Nüchterninsulin</li>
+          <li>Organix / Organic Acids Test — Zitratzyklus-Funktion und Kofaktor-Versorgung</li>
+          <li>Fatty Acids Bloodspot — Omega-3/6-Gleichgewicht und PUFA-Metabolismus</li>
+        </ul>
+        ${supplNote}
+        ${snpBlock}
+        ${protocol}
+      </div>
+    </div>`;
+
+  // ── OUTPUT D — kein wesentlicher Engpass ──
+  } else {
+    html = `<div class="result-card res-a">
+      <div class="result-head">Kein wesentlicher Engpass identifiziert</div>
+      <div class="result-body">
+        <p>Ihr Profil zeigt keinen ausgeprägten Engpass in den getesteten Bereichen
+        (Gesamtscore: ${total}/20). Eine präventive Basisversorgung ist dennoch sinnvoll:</p>
+        <ul>
+          <li>Magnesium (Glycinat) 300 mg/d</li>
+          <li>Vitamin D3 + K2 (je nach Serumwert)</li>
+          <li>Omega-3 EPA+DHA 1–2 g/d präventiv</li>
+        </ul>
+        ${supplNote}
+        ${snpBlock}
+        ${protocol}
+      </div>
+    </div>`;
+  }
+
+  const r = document.getElementById('result');
+  r.innerHTML = html;
+  r.className = 'result show';
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── BUILDERS ──────────────────────────────────────────────────────────────
+
+function buildSNPBlock(auffSNPs) {
+  const allCats = SNP_CATEGORIES.filter(c => snps[c.id] !== null);
+  if (allCats.length === 0) return '';
+
+  const tags = allCats.map(c => {
+    const cls = snps[c.id] === 'auff' ? 'tag-auff'
+              : snps[c.id] === 'unauf' ? 'tag-unauf' : 'tag-unbek';
+    const label = snps[c.id] === 'auff' ? 'Auffällig'
+                : snps[c.id] === 'unauf' ? 'Unauffällig' : 'Unbekannt';
+    return `<span class="snp-tag ${cls}">${c.name}: ${label}</span>`;
+  }).join('');
+
+  const advices = auffSNPs.map(c =>
+    `<p><strong>${c.name}:</strong> ${c.advice.auff}</p>`
+  ).join('');
+
+  const snpGeneral = auffSNPs.length > 0 ? '' : `
+    <p>Ein SNP-Panel kann Auskunft geben über genetisch bedingte Stoffwechselengpässe —
+    in der Entgiftung, dem antioxidativen Schutz, der Entzündungsregulation und dem
+    Mikronährstoffstoffwechsel. Dies kann erklären, warum Standard-Protokolle bei
+    manchen Patienten nicht ausreichend wirken.</p>`;
+
+  return `
+    <div class="snp-result">
+      <div class="snp-result-title">SNP-Profil</div>
+      <div class="snp-tag-row">${tags}</div>
+      <div class="snp-advice">
+        ${advices}
+        ${snpGeneral}
+      </div>
+    </div>`;
+}
+
+function buildProtocol() {
+  return `
+    <div class="protocol-block">
+      <div class="protocol-head">Mitochondrialer Basisplan — Beispielprotokoll</div>
+      <div class="protocol-body">
+        <p>Die folgende Zusammenstellung zeigt, wie eine strukturierte mitochondriale
+        Basisversorgung aussehen kann. Sie dient als Orientierung — individuelle Anpassungen
+        je nach Befund und Verträglichkeit sind ausdrücklich erwünscht.</p>
+        <table class="protocol-table">
+          <tr>
+            <th>Produkt</th>
+            <th>Dosierung</th>
+            <th>Zeitpunkt</th>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">SFI Active B</div>
+              <div class="prod-sub">B-Komplex aktive Formen</div>
+            </td>
+            <td>1–2 Kps. täglich</td>
+            <td>Mit Mahlzeit</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">DFH Mitochondrial NRG</div>
+              <div class="prod-sub">Alternative zu SFI Active B</div>
+            </td>
+            <td>4 Kps./T → 2 Kps./T</td>
+            <td>Mit Mahlzeit</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">Apex Q10 Supermax</div>
+              <div class="prod-sub">Ubiquinol — CoQ10 Shuttle</div>
+            </td>
+            <td>W1: 2 Kps. · W2: 1 Kps.<br>ab W3: jeden 2. Tag</td>
+            <td>Mit fetthaltiger Mahlzeit</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">New Roots MultiMineral</div>
+              <div class="prod-sub">Spurenelemente & Kofaktoren</div>
+            </td>
+            <td>Gemäß Packungsangabe</td>
+            <td>Mit Mahlzeit</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">Quicksilver Thrivagen</div>
+              <div class="prod-sub">Adaptogen · HPA-Unterstützung</div>
+            </td>
+            <td>2–4 Hübe täglich</td>
+            <td>Morgens, nüchtern</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">ITL Prizmag</div>
+              <div class="prod-sub">Magnesium komplex</div>
+            </td>
+            <td>2 Kapseln täglich</td>
+            <td>Abends vor dem Schlafen</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="prod-name">Nordic Health Daily Creatine</div>
+              <div class="prod-sub">Creatin Monohydrat</div>
+            </td>
+            <td>1 gehäufter TL (~5g)</td>
+            <td>Täglich, flexibel</td>
+          </tr>
+        </table>
+        <a class="protocol-link"
+           href="https://nordicvms.com/recommendation?cartkey=8EAC3D71D1B846564C38337ABC3BD2AD"
+           target="_blank"
+           rel="noopener noreferrer">
+          Protokoll im NordicVMS öffnen ↗
+        </a>
+        <p class="protocol-disclaimer">
+          SFI Active B und DFH Mitochondrial NRG sind Alternativen — nicht Kombinationen.
+          Wählen Sie eines der beiden Produkte. Erstellen Sie Ihr eigenes individuelles
+          Protokoll auf Basis der Patientenbedürfnisse.
+        </p>
+      </div>
+    </div>`;
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────
+
+function resetAll() {
+  for (let mi = 0; mi < ans.length; mi++)
+    for (let qi = 0; qi < ans[mi].length; qi++)
+      ans[mi][qi] = null;
+  SNP_CATEGORIES.forEach(c => snps[c.id] = null);
+  entryVal = null;
+  openMod  = 0;
+  snpOpen  = false;
+  document.getElementById('eb-ja').className   = 'radio-btn';
+  document.getElementById('eb-nein').className = 'radio-btn';
+  document.getElementById('result').className  = 'result';
+  document.getElementById('result').innerHTML  = '';
+  document.getElementById('snp-body').classList.remove('open');
+  document.getElementById('snp-chevron').classList.remove('open');
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

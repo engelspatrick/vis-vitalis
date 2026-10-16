@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darm-Symptom-Checker — vis vitalis</title>
+<link href="https://fonts.googleapis.com/css2?family=Domine:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --feldgrau: #3b4939;
+    --redwood: #ae5e4e;
+    --mantis: #79b473;
+    --sunset: #fccf9d;
+    --powderblue: #a8c6da;
+    --cream: #f7f0e8;
+    --cream-dark: #ede4d8;
+    --text: #2a2e29;
+    --text-muted: #7a7a6e;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Lato', Arial, sans-serif;
+    font-weight: 300;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--feldgrau);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 3px solid var(--redwood);
+  }
+  .header-logo {
+    font-family: 'Domine', Georgia, serif;
+    font-size: 22px;
+    color: var(--cream);
+    letter-spacing: 0.5px;
+  }
+  .header-logo span { color: var(--redwood); }
+  .header-sub {
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    color: var(--powderblue);
+    font-weight: 300;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .header-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 36px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--cream-dark);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--redwood);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 36px 40px;
+    border: 1px solid var(--cream-dark);
+    box-shadow: 0 2px 20px rgba(59,73,57,0.06);
+    display: none;
+  }
+  .card.active { display: block; }
+
+  .card-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--redwood);
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-family: 'Domine', Georgia, serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--feldgrau);
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+  .card-body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: var(--cream);
+  }
+  .option:hover {
+    border-color: var(--feldgrau);
+    background: #f0ebe2;
+  }
+  .option.selected {
+    border-color: var(--feldgrau);
+    background: #eaf3de;
+  }
+  .option-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--cream-dark);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.18s ease;
+  }
+  .option.selected .option-dot {
+    background: var(--feldgrau);
+    border-color: var(--feldgrau);
+  }
+  .option-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+    font-weight: 400;
+  }
+  .option-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  /* CHECKBOX OPTIONS */
+  .option-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: var(--cream);
+  }
+  .option-check:hover { border-color: var(--feldgrau); background: #f0ebe2; }
+  .option-check.selected { border-color: var(--feldgrau); background: #eaf3de; }
+  .check-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid var(--cream-dark);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+    font-size: 12px;
+    color: white;
+  }
+  .option-check.selected .check-box {
+    background: var(--feldgrau);
+    border-color: var(--feldgrau);
+  }
+
+  /* NAV BUTTONS */
+  .nav { display: flex; gap: 12px; margin-top: 32px; align-items: center; }
+
+  .btn-back {
+    padding: 12px 20px;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-back:hover { border-color: var(--feldgrau); color: var(--feldgrau); }
+
+  .btn-next {
+    flex: 1;
+    padding: 14px 24px;
+    background: var(--feldgrau);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Lato', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.3px;
+  }
+  .btn-next:hover { background: #2a3428; }
+  .btn-next:disabled {
+    background: var(--cream-dark);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+
+  /* RESULT */
+  .result-card { display: none; }
+  .result-card.active { display: block; }
+
+  .result-header {
+    border-radius: 14px 14px 0 0;
+    padding: 28px 36px;
+    margin: -36px -40px 28px;
+  }
+  .result-header.sibo  { background: linear-gradient(135deg, #3b4939, #4d6449); }
+  .result-header.imo   { background: linear-gradient(135deg, #2e6a8a, #3d8aad); }
+  .result-header.sifo  { background: linear-gradient(135deg, #ae5e4e, #c97060); }
+  .result-header.mixed { background: linear-gradient(135deg, #6a5d3b, #8a7a4d); }
+
+  .result-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 8px;
+  }
+  .result-name {
+    font-family: 'Domine', Georgia, serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+  }
+  .result-tagline {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 300;
+  }
+
+  .result-explanation {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .result-symptoms {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+  .result-symptoms-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .symptom-tag {
+    display: inline-block;
+    background: white;
+    border: 1px solid var(--cream-dark);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--text);
+    margin: 4px 4px 4px 0;
+  }
+
+  .btn-protocol {
+    display: block;
+    width: 100%;
+    padding: 16px 24px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-family: 'Domine', Georgia, serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn-protocol:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-protocol.sibo  { background: var(--feldgrau); }
+  .btn-protocol.imo   { background: #2e6a8a; }
+  .btn-protocol.sifo  { background: var(--redwood); }
+
+  .btn-restart {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 10px;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    transition: all 0.18s;
+    margin-top: 8px;
+  }
+  .btn-restart:hover { border-color: var(--feldgrau); color: var(--feldgrau); }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    margin-top: 24px;
+    padding: 16px 18px;
+    background: #fdf5ec;
+    border-left: 3px solid var(--sunset);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+  .disclaimer strong { color: var(--text); font-weight: 700; }
+
+  /* INTRO */
+  .intro-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .intro-list {
+    list-style: none;
+    margin: 0 0 28px;
+  }
+  .intro-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .intro-list li:last-child { border-bottom: none; }
+  .intro-list li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--redwood);
+    flex-shrink: 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 11px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--cream-dark);
+    margin-top: 20px;
+  }
+  .footer a { color: var(--redwood); text-decoration: none; }
+
+  @media (max-width: 480px) {
+    .card { padding: 28px 24px; }
+    .result-header { margin: -28px -24px 24px; padding: 24px; }
+    .card-title { font-size: 20px; }
+    .result-name { font-size: 24px; }
+    .main { padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div>
+    <div class="header-logo">vis <span>vitalis</span></div>
+    <div class="header-sub">ervaar jouw levenskracht</div>
+  </div>
+  <div class="header-divider"></div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:300;">Darm-Symptom-Checker</div>
+</header>
+
+<main class="main">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">Frage 0 von 6</div>
+  </div>
+
+  <!-- Q0: INTRO -->
+  <div class="card active" id="q0">
+    <div class="card-eyebrow">Darm-Symptom-Checker</div>
+    <div class="card-title">Wie gut kennt dein Darm seinen Job?</div>
+    <div class="card-body">
+      Dieser kurze Fragebogen hilft dir einzuschätzen, welche Art von Darmdysbiose bei dir wahrscheinlich vorliegt — und gibt dir einen ersten Therapieansatz.<br><br>
+      <strong style="color:var(--feldgrau)">6 Fragen · ca. 2 Minuten</strong>
+    </div>
+    <ul class="intro-list">
+      <li>Basiert auf klinischer Funktioneller Medizin</li>
+      <li>Gibt eine Verdachtsrichtung — keine Diagnose</li>
+      <li>Am Ende: passender Therapieplan von vis vitalis</li>
+    </ul>
+    <div class="nav">
+      <button class="btn-next" onclick="goTo(1)">Starten →</button>
+    </div>
+  </div>
+
+  <!-- Q1: BESCHWERDEN? -->
+  <div class="card" id="q1">
+    <div class="card-eyebrow">Frage 1 von 6</div>
+    <div class="card-title">Hast du regelmäßig Verdauungsbeschwerden?</div>
+    <div class="card-body">Wähle die Aussage die am besten auf dich zutrifft. Ein nicht-täglicher Stuhlgang ohne Schmerzen zählt ebenfalls als Verdauungsbeschwerde.</div>
+    <div class="options" id="opts1">
+      <div class="option" onclick="selectOption('q1','A')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Ja — ich habe regelmäßig Beschwerden</div>
+          <div class="option-sub">Mindestens mehrmals pro Woche, seit mehr als 4 Wochen</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q1','B')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Gelegentlich — nicht jeden Tag</div>
+          <div class="option-sub">Manchmal Beschwerden, aber nicht konstant</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q1','C')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Ich gehe nicht täglich zur Toilette</div>
+          <div class="option-sub">Aber ohne Schmerzen — fühlt sich "normal" an</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q1','D')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Nein — keine Beschwerden, täglicher Stuhlgang</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(0)">← Zurück</button>
+      <button class="btn-next" id="btn1" disabled onclick="next1()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- Q2: TIMING -->
+  <div class="card" id="q2">
+    <div class="card-eyebrow">Frage 2 von 6</div>
+    <div class="card-title">Wann nach dem Essen treten deine Beschwerden auf?</div>
+    <div class="card-body">Denke an eine typische Mahlzeit — wann spürst du die ersten Beschwerden?</div>
+    <div class="options" id="opts2">
+      <div class="option" onclick="selectOption('q2','early')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Früh — innerhalb 30 bis 90 Minuten</div>
+          <div class="option-sub">Blähungen, Druck oder Völle kurz nach dem Essen</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q2','late')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Spät — nach 2 bis 4 Stunden oder länger</div>
+          <div class="option-sub">Schweres Völlegefühl, träger Bauch, Verstopfung</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q2','mixed')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Wechselnd — mal früh, mal spät</div>
+          <div class="option-sub">Kein klares Muster erkennbar</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q2','nolink')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Kein klarer Zusammenhang mit dem Essen</div>
+          <div class="option-sub">Beschwerden unabhängig von Mahlzeiten</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(1)">← Zurück</button>
+      <button class="btn-next" id="btn2" disabled onclick="goTo(3)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- Q3: SUBSTRAT -->
+  <div class="card" id="q3">
+    <div class="card-eyebrow">Frage 3 von 6</div>
+    <div class="card-title">Was löst deine Beschwerden besonders aus?</div>
+    <div class="card-body">Du kannst mehrere Punkte wählen die auf dich zutreffen.</div>
+    <div class="options" id="opts3">
+      <div class="option-check" onclick="toggleCheck('q3','sugar')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Zucker, Süßigkeiten, Fruchtsaft, Weißbrot</div>
+          <div class="option-sub">Starke Reaktion auf Süßes oder Raffiniertes</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q3','fiber')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Ballaststoffe, Hülsenfrüchte, Zwiebeln, Knoblauch</div>
+          <div class="option-sub">Fermentierbare Lebensmittel</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q3','big')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Große Mahlzeiten allgemein</div>
+          <div class="option-sub">Menge wichtiger als Inhalt</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q3','all')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Fast alles — kein klarer Auslöser</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q3','none')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Kein klarer Lebensmittel-Zusammenhang</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(2)">← Zurück</button>
+      <button class="btn-next" id="btn3" disabled onclick="goTo(4)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- Q4: STUHLBILD -->
+  <div class="card" id="q4">
+    <div class="card-eyebrow">Frage 4 von 6</div>
+    <div class="card-title">Wie würdest du deinen Stuhlgang beschreiben?</div>
+    <div class="card-body">Wähle die Beschreibung die am häufigsten zutrifft.</div>
+    <div class="options" id="opts4">
+      <div class="option" onclick="selectOption('q4','diarrhea')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Eher Durchfall oder weiche Stühle</div>
+          <div class="option-sub">Häufig, wässrig, dringend</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q4','constipation')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Eher Verstopfung</div>
+          <div class="option-sub">Hart, selten, mit Mühe — weniger als täglich</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q4','mixed')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Wechselnd — mal Durchfall, mal Verstopfung</div>
+        </div>
+      </div>
+      <div class="option" onclick="selectOption('q4','normal')">
+        <div class="option-dot"></div>
+        <div>
+          <div class="option-text">Relativ normal — täglich, geformt</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(3)">← Zurück</button>
+      <button class="btn-next" id="btn4" disabled onclick="goTo(5)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- Q5: BEGLEITSYMPTOME -->
+  <div class="card" id="q5">
+    <div class="card-eyebrow">Frage 5 von 6</div>
+    <div class="card-title">Welche Begleitsymptome kennst du?</div>
+    <div class="card-body">Wähle alles was regelmäßig vorkommt.</div>
+    <div class="options" id="opts5">
+      <div class="option-check" onclick="toggleCheck('q5','fog')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Brain Fog oder Müdigkeit nach dem Essen</div>
+          <div class="option-sub">Konzentrationsprobleme, Benommenheit</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q5','tongue')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Weißer Belag auf der Zunge</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q5','itch')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Juckreiz — perianal oder Haut</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q5','mood')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Stimmungsschwankungen, Reizbarkeit, Angst</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q5','skin')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Hautprobleme — Akne, Rosazea, Ekzem</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q5','none')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Keine der genannten</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(4)">← Zurück</button>
+      <button class="btn-next" id="btn5" disabled onclick="goTo(6)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- Q6: ANAMNESE -->
+  <div class="card" id="q6">
+    <div class="card-eyebrow">Frage 6 von 6</div>
+    <div class="card-title">Noch ein paar Fragen zur Vorgeschichte</div>
+    <div class="card-body">Wähle alles was auf dich zutrifft.</div>
+    <div class="options" id="opts6">
+      <div class="option-check" onclick="toggleCheck('q6','antibiotics')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Antibiotika in den letzten 2 Jahren</div>
+          <div class="option-sub">Eine oder mehrere Kuren</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q6','ppi')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Regelmäßige Einnahme von Magensäureblockern</div>
+          <div class="option-sub">Omeprazol, Pantoprazol oder ähnliches</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q6','infection')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Beschwerden begannen nach einer Infektion</div>
+          <div class="option-sub">Magen-Darm-Infekt, Virus, COVID</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q6','stress')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Chronischer Stress oder Schlafmangel</div>
+        </div>
+      </div>
+      <div class="option-check" onclick="toggleCheck('q6','none')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="option-text">Nichts davon trifft zu</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(5)">← Zurück</button>
+      <button class="btn-next" id="btn6" disabled onclick="showResult()">Ergebnis anzeigen →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="card" id="result">
+    <div id="resultContent"></div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <a href="https://vis-vitalis.nl">vis-vitalis.nl</a> · patrick@vis-vitalis.nl · © 2025 vis vitalis
+</footer>
+
+<script>
+  const answers = {
+    q1: null, q2: null,
+    q3: [], q4: null,
+    q5: [], q6: []
+  };
+
+  const stepMap = [0,1,2,3,4,5,6,'result'];
+  const totalQ = 6;
+
+  function updateProgress(step) {
+    const pct = step === 0 ? 0 : Math.round((step / totalQ) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent =
+      step === 0 ? 'Start' :
+      step > totalQ ? 'Ergebnis' :
+      'Frage ' + step + ' von ' + totalQ;
+  }
+
+  function goTo(step) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+    if (step === 'result') {
+      document.getElementById('result').classList.add('active');
+      document.getElementById('progressWrap').style.display = 'none';
+    } else {
+      document.getElementById('q' + step).classList.add('active');
+      updateProgress(step);
+    }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  function selectOption(qId, val) {
+    answers[qId] = val;
+    document.querySelectorAll('#opts' + qId.replace('q','') + ' .option').forEach(o => o.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    document.getElementById('btn' + qId.replace('q','')).disabled = false;
+  }
+
+  function toggleCheck(qId, val) {
+    const key = qId;
+    const el = event.currentTarget;
+    const arr = answers[key];
+
+    if (val === 'none') {
+      answers[key] = arr.includes('none') ? [] : ['none'];
+      document.querySelectorAll('#opts' + key.replace('q','') + ' .option-check').forEach(o => o.classList.remove('selected'));
+      if (answers[key].includes('none')) el.classList.add('selected');
+    } else {
+      const noneIdx = arr.indexOf('none');
+      if (noneIdx > -1) {
+        arr.splice(noneIdx, 1);
+        document.querySelectorAll('#opts' + key.replace('q','') + ' .option-check').forEach(o => {
+          if (o.querySelector('.option-text') && o.querySelector('.option-text').textContent.includes('Nichts davon') ||
+              o.querySelector('.option-text') && o.querySelector('.option-text').textContent.includes('Kein klarer')) {
+            o.classList.remove('selected');
+          }
+        });
+      }
+      const idx = arr.indexOf(val);
+      if (idx > -1) {
+        arr.splice(idx, 1);
+        el.classList.remove('selected');
+      } else {
+        arr.push(val);
+        el.classList.add('selected');
+      }
+    }
+    const btnId = 'btn' + key.replace('q','');
+    document.getElementById(btnId).disabled = answers[key].length === 0;
+  }
+
+  function next1() {
+    if (answers.q1 === 'D') {
+      showNoIssue();
+    } else {
+      goTo(2);
+    }
+  }
+
+  function showNoIssue() {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('result').classList.add('active');
+    document.getElementById('resultContent').innerHTML = `
+      <div class="result-header mixed" style="background:linear-gradient(135deg,#3b4939,#4d6449)">
+        <div class="result-label">Auswertung</div>
+        <div class="result-name">Alles in Ordnung 🌱</div>
+        <div class="result-tagline">Keine Hinweise auf eine aktive Darmdysbiose</div>
+      </div>
+      <p class="result-explanation">
+        Deine Antworten deuten nicht auf eine aktive Dysbiose hin. Das ist eine gute Nachricht!<br><br>
+        Dennoch lohnt es sich, die Darmgesundheit aktiv zu erhalten — durch artgerechte Ernährung, 
+        ausreichend Ballaststoffe und bewusstes Essverhalten.
+      </p>
+      <div class="disclaimer">
+        <strong>Hinweis:</strong> Dieser Checker ersetzt keine ärztliche oder therapeutische Untersuchung. 
+        Bei anhaltenden Beschwerden wende dich an einen Therapeuten.
+      </div>
+      <button class="btn-restart" onclick="restart()">↺ Nochmal starten</button>
+    `;
+  }
+
+  function calcResult() {
+    let scores = { sibo: 0, imo: 0, sifo: 0 };
+
+    // Timing
+    if (answers.q2 === 'early') { scores.sibo += 3; scores.sifo += 3; }
+    if (answers.q2 === 'late')  { scores.imo += 4; }
+    if (answers.q2 === 'mixed') { scores.sibo += 1; scores.sifo += 1; scores.imo += 1; }
+
+    // Substrat
+    if (answers.q3.includes('sugar')) { scores.sifo += 4; }
+    if (answers.q3.includes('fiber')) { scores.sibo += 3; }
+    if (answers.q3.includes('big'))   { scores.imo += 2; }
+    if (answers.q3.includes('all'))   { scores.sibo += 2; }
+
+    // Stuhlbild
+    if (answers.q4 === 'diarrhea')    { scores.sibo += 3; }
+    if (answers.q4 === 'constipation'){ scores.imo += 4; }
+    if (answers.q4 === 'mixed')       { scores.sibo += 1; scores.sifo += 1; }
+
+    // Begleitsymptome
+    if (answers.q5.includes('fog'))   { scores.sifo += 2; scores.sibo += 1; }
+    if (answers.q5.includes('tongue')){ scores.sifo += 4; }
+    if (answers.q5.includes('itch'))  { scores.sifo += 3; }
+    if (answers.q5.includes('mood'))  { scores.sifo += 2; scores.sibo += 1; }
+    if (answers.q5.includes('skin'))  { scores.sifo += 2; }
+
+    // Anamnese
+    if (answers.q6.includes('antibiotics')) { scores.sifo += 2; scores.imo += 1; }
+    if (answers.q6.includes('ppi'))         { scores.sibo += 2; scores.sifo += 1; }
+    if (answers.q6.includes('infection'))   { scores.sibo += 3; }
+    if (answers.q6.includes('stress'))      { scores.imo += 1; scores.sibo += 1; }
+
+    // Q1 = C (geen dagelijkse stoelgang zonder klachten) → IMO hint
+    if (answers.q1 === 'C') { scores.imo += 2; }
+
+    return scores;
+  }
+
+  function showResult() {
+    const scores = calcResult();
+    const max = Math.max(scores.sibo, scores.imo, scores.sifo);
+    const total = scores.sibo + scores.imo + scores.sifo;
+
+    // Bestimme Ergebnis
+    let primary = Object.keys(scores).reduce((a,b) => scores[a] > scores[b] ? a : b);
+
+    // Prüfe ob gemischt (zwei fast gleich)
+    const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+    const isMixed = sorted[0][1] > 0 && sorted[1][1] > 0 &&
+                    (sorted[0][1] - sorted[1][1]) <= 2;
+
+    const content = {
+      sibo: {
+        color: 'sibo',
+        name: 'SIBO',
+        full: 'Small Intestinal Bacterial Overgrowth',
+        tagline: 'Bakterielle Überbevölkerung im Dünndarm',
+        text: `Dein Symptommuster deutet am ehesten auf eine <strong>bakterielle Überbevölkerung im Dünndarm</strong> hin. Bakterien die eigentlich in den Dickdarm gehören, befinden sich im falschen Stockwerk — und fermentieren dort deine Nahrung bevor du sie aufnehmen kannst.<br><br>
+        Die typischen Hinweise in deinen Antworten: früh einsetzende Beschwerden, Reaktion auf fermentierbare Lebensmittel und/oder lockere Stühle. ${answers.q6.includes('infection') ? 'Ein post-infektiöser SIBO nach einer Magen-Darm-Erkrankung ist häufig.' : ''}`,
+        tags: ['Blähungen früh nach Essen','Lockerer Stuhl','Reaktion auf Ballaststoffe','Bauchschmerzen'],
+        link: 'https://nordicvms.com/recommendation?cartkey=9AAF06C603DA4813BDC66162E2FC1402',
+        btnClass: 'sibo'
+      },
+      imo: {
+        color: 'imo',
+        name: 'IMO',
+        full: 'Intestinal Methanogen Overgrowth',
+        tagline: 'Übermäßige Methan-Produktion durch Archaea',
+        text: `Dein Symptommuster deutet am ehesten auf eine <strong>Überwucherung durch Archaea</strong> hin — diese produzieren Methan, das die Darmmotilität direkt bremst. Das Ergebnis: ein träger, langsamer Darm.<br><br>
+        Die typischen Hinweise in deinen Antworten: Verstopfung als Leitsymptom, spät einsetzende Beschwerden, Völlegefühl das stundenlang anhält. ${answers.q1 === 'C' ? 'Nicht-täglicher Stuhlgang ohne Schmerzen ist ein klassisches IMO-Zeichen.' : ''}`,
+        tags: ['Verstopfung','Träger Bauch','Spätes Völlegefühl','Aufgebläht auch morgens'],
+        link: 'https://nordicvms.com/recommendation?cartkey=D06FA0CA37F34BF78AE221138C6B19F4',
+        btnClass: 'imo'
+      },
+      sifo: {
+        color: 'sifo',
+        name: 'SIFO',
+        full: 'Small Intestinal Fungal Overgrowth',
+        tagline: 'Pilzüberwucherung im Dünndarm',
+        text: `Dein Symptommuster deutet am ehesten auf eine <strong>Pilzüberwucherung im Dünndarm</strong> hin — meist durch Candida-Arten. Im Gegensatz zu Bakterien fermentieren Pilze Zucker zu Ethanol und Acetaldehyd, was die typischen Symptome erklärt.<br><br>
+        Die typischen Hinweise in deinen Antworten: starke Reaktion auf Zucker und Süßes, ${answers.q5.includes('tongue') ? 'weißer Zungenbelag, ' : ''}${answers.q5.includes('fog') ? 'Brain Fog nach dem Essen, ' : ''}${answers.q6.includes('antibiotics') ? 'Antibiotika-Vorgeschichte. ' : ''}Pilze wachsen ungehindert wenn die bakterielle Konkurrenz fehlt.`,
+        tags: ['Reaktion auf Zucker','Zungenbelag','Brain Fog nach Essen','Stimmungsschwankungen'],
+        link: 'https://nordicvms.com/recommendation?cartkey=33DAC7CA3F904B9683FC88E307345942',
+        btnClass: 'sifo'
+      }
+    };
+
+    const r = content[primary];
+
+    let mixedNote = '';
+    if (isMixed) {
+      const second = sorted[1][0];
+      mixedNote = `<div style="background:var(--cream);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);line-height:1.6;">
+        <strong style="color:var(--text)">Hinweis:</strong> Dein Bild zeigt auch Hinweise auf <strong>${content[second].name}</strong>. 
+        Dysbiosen treten oft kombiniert auf. Das primäre Protokoll deckt beide häufig ab — 
+        sprich deinen Therapeuten darauf an.
+      </div>`;
+    }
+
+    document.getElementById('resultContent').innerHTML = `
+      <div class="result-header ${r.color}">
+        <div class="result-label">Verdachtsdiagnose</div>
+        <div class="result-name">${r.name}</div>
+        <div class="result-tagline">${r.full}</div>
+      </div>
+
+      <p class="result-explanation">${r.text}</p>
+
+      ${mixedNote}
+
+      <div class="result-symptoms">
+        <div class="result-symptoms-title">Typische Merkmale bei dir</div>
+        ${r.tags.map(t => `<span class="symptom-tag">${t}</span>`).join('')}
+      </div>
+
+      <a href="${r.link}" target="_blank" class="btn-protocol ${r.btnClass}">
+        → Therapieprotokoll ansehen
+      </a>
+
+      <div class="disclaimer">
+        <strong>Wichtiger Hinweis:</strong> Dieser Symptom-Checker ist ein Orientierungshilfe auf Basis klinischer Erfahrung und ersetzt <strong>keine ärztliche oder therapeutische Diagnose</strong>. Die Ergebnisse stellen einen unverbindlichen Behandlungsvorschlag dar. Bei anhaltenden oder starken Beschwerden wende dich an einen qualifizierten Therapeuten oder Arzt.<br><br>
+        Fragen? <a href="mailto:patrick@vis-vitalis.nl" style="color:var(--redwood)">patrick@vis-vitalis.nl</a> · <a href="https://vis-vitalis.nl" style="color:var(--redwood)">vis-vitalis.nl</a>
+      </div>
+
+      <button class="btn-restart" onclick="restart()">↺ Nochmal starten</button>
+    `;
+
+    goTo('result');
+  }
+
+  function restart() {
+    answers.q1 = null; answers.q2 = null;
+    answers.q3 = []; answers.q4 = null;
+    answers.q5 = []; answers.q6 = [];
+    document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    document.querySelectorAll('.option-check').forEach(o => o.classList.remove('selected'));
+    document.querySelectorAll('.btn-next').forEach(b => { if(b.id !== 'btn0') b.disabled = true; });
+    document.getElementById('progressWrap').style.display = 'flex';
+    goTo(0);
+  }
+</script>
+</body>
+</html>
