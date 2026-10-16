@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thiol-Rechner · vis vitalis</title>
+<meta name="description" content="Praxis-Tool für Ärzte und Heilpraktiker: Thiol-Status, Albumin und Homocystein auswerten.">
+<meta name="theme-color" content="#3b4939">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Thiol-Rechner">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@500;700&family=Lato:wght@400;700&display=swap">
+<style>
+/* Vis-Vitalis Hausstil (v25.1): Domine Überschriften, Lato Text. Layout: Eingabe links, Befund rechts; am Smartphone untereinander */
+:root{
+  --redwood:#ae5e4e; --feldgrau:#3b4939; --mantis:#79b473; --sunset:#fccf9d; --powder:#a8c6da;
+  --bg:#f5f6f2; --panel:#ffffff; --ink:#2a3428; --muted:#5f6b5c; --line:#dde2d8; --field:#f5f6f2;
+  --accent:var(--redwood); --tint:#f1e4e1;
+  --ok:#3f7d39; --ok-soft:#e6f2e4; --warn:#9a5a12; --warn-soft:#fdeedd; --crit:#9c3f30; --crit-soft:#f6e2de;
+  --f-head:"Domine",Georgia,"Times New Roman",serif;
+  --f-body:"Lato","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161c15; --panel:#1f281e; --ink:#e9ede6; --muted:#a6b1a2; --line:#334031; --field:#161c15;
+  --accent:#d98a79; --tint:#3a2723;
+  --ok:#9fd39a; --ok-soft:#1f3320; --warn:#fccf9d; --warn-soft:#3b2d1b; --crit:#e99a8b; --crit-soft:#3d221d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161c15; --panel:#1f281e; --ink:#e9ede6; --muted:#a6b1a2; --line:#334031; --field:#161c15;
+  --accent:#d98a79; --tint:#3a2723;
+  --ok:#9fd39a; --ok-soft:#1f3320; --warn:#fccf9d; --warn-soft:#3b2d1b; --crit:#e99a8b; --crit-soft:#3d221d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.55;margin:0}
+.topbar{background:var(--feldgrau);color:#f5f6f2}
+.topbar .in{max-width:1040px;margin:0 auto;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--f-head);font-weight:700;font-size:22px;letter-spacing:.01em;color:var(--sunset);text-decoration:none}
+.tagline{font-size:13px;opacity:.85;font-style:italic}
+.wrap{max-width:1040px;margin:0 auto;padding-block:26px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+header.intro{display:grid;gap:8px}
+.eyebrow{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-family:var(--f-head);font-weight:700;font-size:clamp(28px,4.5vw,40px);line-height:1.15;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:64ch;margin:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:18px;min-width:0}
+h2{font-family:var(--f-head);font-weight:700;font-size:18px;margin:0;color:var(--ink)}
+.field{display:grid;gap:6px}
+.field label{font-weight:700;font-size:14px}
+.field small{color:var(--muted);font-size:12.5px}
+.row{display:flex;gap:8px}
+input[type=number],select{font:700 16px var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:7px;padding:9px 11px;min-width:0}
+input[type=number]{flex:1;width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.unit{font-size:13px;color:var(--muted);align-self:center;white-space:nowrap;min-width:54px}
+details{border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted)}
+details .field{margin-top:12px}
+.checks{border:0;padding:0;margin:0;display:grid;gap:9px}
+.checks legend{font-weight:700;font-size:14px;margin-bottom:6px;padding:0}
+.checks label{display:flex;gap:9px;align-items:flex-start;font-size:14px;cursor:pointer}
+.checks input{flex:none;width:18px;height:18px;margin-top:2px;accent-color:var(--feldgrau)}
+button.reset{justify-self:start;font:700 13px var(--f-body);background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:8px 13px;cursor:pointer}
+button.reset:hover{color:var(--ink);border-color:var(--muted)}
+
+.verdict{border-radius:9px;padding:18px 18px 16px;display:grid;gap:6px;border:1px solid transparent;border-left-width:5px}
+.verdict .tag{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.verdict .word{font-family:var(--f-head);font-size:clamp(26px,4vw,34px);font-weight:700;line-height:1.15}
+.verdict p{margin:0}
+.v-crit{background:var(--crit-soft);border-color:var(--crit)} .v-crit .word,.v-crit .tag{color:var(--crit)}
+.v-warn{background:var(--warn-soft);border-color:var(--warn)} .v-warn .word,.v-warn .tag{color:var(--warn)}
+.v-ok{background:var(--ok-soft);border-color:var(--ok)} .v-ok .word,.v-ok .tag{color:var(--ok)}
+.v-none{background:var(--field);border-color:var(--line)} .v-none .word{color:var(--muted)}
+
+.meters{display:grid;gap:14px}
+.meter{display:grid;gap:5px}
+.meter .top{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;flex-wrap:wrap}
+.meter .top span:last-child{font-weight:700;font-variant-numeric:tabular-nums}
+.barwrap{position:relative}
+.bar{height:10px;border-radius:5px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.z-ok{background:var(--mantis)} .z-warn{background:var(--sunset)} .z-crit{background:var(--redwood)}
+.pin{position:absolute;top:-3px;width:3px;height:16px;background:var(--ink);border-radius:2px;transform:translateX(-1px)}
+.chip{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;white-space:nowrap}
+.c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)} .c-crit{background:var(--crit-soft);color:var(--crit)}
+.c-none{background:var(--field);color:var(--muted);border:1px solid var(--line)}
+
+ul.list{margin:0;padding-left:18px;display:grid;gap:7px}
+ul.list li::marker{color:var(--accent)}
+.snp{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
+.snp-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.panels{display:grid;gap:8px}
+.gp{background:var(--tint);border-radius:7px;padding:9px 12px;display:grid;gap:2px;min-width:0}
+.gp b{font-size:13.5px}
+.gp span{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.02em;overflow-wrap:anywhere}
+.gp em{font-style:normal;font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);max-width:78ch;margin:0}
+.formula{font-size:13px;font-weight:700;background:var(--tint);border-radius:6px;padding:9px 11px;overflow-x:auto}
+footer{border-top:1px solid var(--line);padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+footer .brand-s{font-family:var(--f-head);color:var(--accent);font-weight:700}
+@media (prefers-reduced-motion:no-preference){.verdict{transition:background .25s,border-color .25s}}
+</style>
+
+<div class="topbar"><div class="in"><span class="brand">vis vitalis</span><span class="tagline">ervaar jouw levenskracht</span></div></div>
+
+<div class="wrap">
+  <header class="intro">
+    <div class="eyebrow">Praxis-Tool · Thiol-Status</div>
+    <h1>Thiol-Rechner</h1>
+    <p class="lede">Für Ärztinnen, Ärzte und Heilpraktiker. Drei Laborwerte eingeben, und der Rechner schätzt ein, ob eine Substitution von Thiol-Donatoren erforderlich, empfehlenswert oder unnötig ist. Der Thiolwert wird auf Albumin korrigiert, weil Albumin-Cys34 den Großteil der freien SH-Gruppen im Plasma stellt.</p>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="in-h">
+      <h2 id="in-h">Laborwerte <span class="note" style="font-weight:400;font-family:var(--f-body);display:inline">(Beispielwerte vorausgefüllt)</span></h2>
+
+      <div class="field">
+        <label for="thiol">Thiol-Status (freie SH-Gruppen)</label>
+        <div class="row"><input id="thiol" type="number" inputmode="decimal" step="any" value="360"><span class="unit">µmol/l</span></div>
+      </div>
+      <div class="field">
+        <label for="alb">Albumin</label>
+        <div class="row"><input id="alb" type="number" inputmode="decimal" step="any" value="4.1">
+          <select id="albUnit" aria-label="Einheit Albumin"><option value="gdl" selected>g/dl</option><option value="gl">g/l</option></select></div>
+      </div>
+      <div class="field">
+        <label for="hcy">Homocystein</label>
+        <div class="row"><input id="hcy" type="number" inputmode="decimal" step="any" value="13.2"><span class="unit">µmol/l</span></div>
+      </div>
+
+      <fieldset class="checks">
+        <legend>Weitere Hinweise (optional)</legend>
+        <label><input type="checkbox" id="persist"> Thiol-Status trotz Substitution weiterhin niedrig</label>
+        <label><input type="checkbox" id="tox"> Bekannte Toxin- oder Schwermetallbelastung</label>
+        <label><input type="checkbox" id="infl"> Chronische Entzündung oder hohe oxidative Last</label>
+      </fieldset>
+
+      <details>
+        <summary>Laborreferenz anpassen</summary>
+        <div class="field">
+          <label for="ref">Untere Referenzgrenze Thiol-Status</label>
+          <div class="row"><input id="ref" type="number" inputmode="decimal" step="any" value="400"><span class="unit">µmol/l</span></div>
+          <small>Bitte den Wert des eigenen Labors eintragen. Methoden unterscheiden sich deutlich.</small>
+        </div>
+        <div class="field">
+          <label for="hcyRef">Homocystein-Zielwert (funktionell)</label>
+          <div class="row"><input id="hcyRef" type="number" inputmode="decimal" step="any" value="10"><span class="unit">µmol/l</span></div>
+        </div>
+      </details>
+
+      <button class="reset" id="reset" type="button">Felder leeren</button>
+    </section>
+
+    <section class="panel" aria-live="polite" aria-label="Ergebnis">
+      <div id="verdict" class="verdict v-none">
+        <span class="tag">Thiol-Substitution</span>
+        <span class="word">–</span>
+        <p id="vText">Bitte alle drei Werte eingeben.</p>
+      </div>
+      <div class="meters" id="meters"></div>
+      <div><h2 style="margin-bottom:8px">Begründung</h2><ul class="list" id="why"></ul></div>
+      <div><h2 style="margin-bottom:8px">Nächste Schritte</h2><ul class="list" id="todo"></ul></div>
+      <div class="snp" id="snp" hidden>
+        <div class="snp-head"><h2>SNP-Analyse</h2><span class="chip" id="snpChip"></span></div>
+        <p id="snpText" style="margin:0"></p>
+        <div class="panels" id="snpPanels"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" style="gap:10px" aria-labelledby="how-h">
+    <h2 id="how-h">So rechnet das Tool</h2>
+    <div class="formula">Thiol korrigiert = Thiol gemessen × 42 ÷ Albumin (g/l) → Verhältnis = korrigiert ÷ untere Referenz</div>
+    <p class="note">42 g/l Albumin entsprechen etwa 630 µmol/l Albumin. Bei 60–70 % reduziertem Cys34 ergibt das rund 400 µmol/l freie Thiole. Verhältnis ≥ 1,00: unnötig · 0,85–0,99: empfehlenswert · &lt; 0,85: erforderlich. Homocystein verschiebt die Kategorie nicht, bestimmt aber, ob zuerst oder parallel Methylierung und Transsulfurierung behandelt werden sollten. Erhöhtes Hcy bindet per Disulfid an Albumin-Cys34 und senkt so die freien Thiole.</p>
+    <p class="note">Orientierungshilfe zur Unterstützung der klinischen Beurteilung, kein Ersatz dafür. Grenzwerte sind laborabhängig. Die Albuminkorrektur ist eine vereinfachte Näherung und wird unter 30 g/l unsicher. Präanalytik: Probe zügig zentrifugieren oder kühlen, sonst steigt Hcy und die Thiole oxidieren nach.</p>
+  </section>
+
+  <footer><span><span class="brand-s">vis vitalis</span> · Patrick Engels</span><span>Version 1.0 · Funktioniert auch offline</span></footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const ids=["thiol","alb","albUnit","hcy","ref","hcyRef","persist","tox","infl"];
+const PANELS={
+  detox:{t:"Entgiftung / Glutathion",g:"GSTM1 · GSTT1 · GSTP1 · NQO1",w:"Glutathion-Konjugation (Phase II) und Chinon-Entgiftung"},
+  ox:{t:"Oxidativer Stress",g:"SOD2 · CAT · GPX1",w:"Antioxidative Enzymkapazität"},
+  meth:{t:"Methylierung / Transsulfurierung",g:"MTHFR · MTR · MTRR · CBS",w:"Homocystein-Abbau und Weg zu Cystein"}
+};
+const num=id=>{const v=parseFloat(String($(id).value).replace(",","."));return isFinite(v)&&v>0?v:null};
+const fmt=v=>v.toLocaleString("de-DE",{maximumFractionDigits:1});
+const chip=(cls,t)=>`<span class="chip ${cls}">${t}</span>`;
+function meter(label,val,unit,zones,max,c){
+  const segs=zones.map(z=>`<i class="${z.c}" style="width:${(z.to-z.from)/max*100}%"></i>`).join("");
+  const pos=Math.max(0,Math.min(100,val/max*100));
+  return `<div class="meter"><div class="top"><span>${label}${c}</span><span>${fmt(val)} ${unit}</span></div><div class="barwrap"><div class="bar">${segs}</div><span class="pin" style="left:${pos}%"></span></div></div>`;
+}
+function calc(){
+  const thiol=num("thiol"), albRaw=num("alb"), hcy=num("hcy"), ref=num("ref")||400, hcyRef=num("hcyRef")||10;
+  const v=$("verdict"), why=$("why"), todo=$("todo"), meters=$("meters");
+  if(!thiol||!albRaw||!hcy){
+    v.className="verdict v-none"; v.querySelector(".word").textContent="–";
+    $("vText").textContent="Bitte alle drei Werte eingeben."; why.innerHTML=todo.innerHTML=meters.innerHTML=""; $("snp").hidden=true; return;
+  }
+  const alb=$("albUnit").value==="gdl"?albRaw*10:albRaw;
+  const corr=thiol*42/alb, r=corr/ref;
+  const albLow=alb<35, albVeryLow=alb<30, hcyHigh=hcy>hcyRef, hcyClear=hcy>15, hcyLow=hcy<6;
+
+  let cls,word,text;
+  if(r>=1){cls="v-ok";word="Unnötig";text="Der albuminkorrigierte Thiol-Status liegt im Referenzbereich."}
+  else if(r>=.85){cls="v-warn";word="Empfehlenswert";text="Der albuminkorrigierte Thiol-Status liegt knapp unter der Referenz."}
+  else{cls="v-crit";word="Erforderlich";text="Der albuminkorrigierte Thiol-Status ist deutlich erniedrigt."}
+  if(r<1&&hcyClear) text+=" Homocystein ist erhöht und trägt wahrscheinlich zum Thiolverlust bei.";
+  v.className="verdict "+cls; v.querySelector(".word").textContent=word; $("vText").textContent=text;
+
+  const tMax=ref*1.5;
+  meters.innerHTML=
+    meter("Thiol, albuminkorrigiert",corr,"µmol/l",[{from:0,to:ref*.85,c:"z-crit"},{from:ref*.85,to:ref,c:"z-warn"},{from:ref,to:tMax,c:"z-ok"}],tMax,
+      r>=1?chip("c-ok","im Bereich"):r>=.85?chip("c-warn","grenzwertig"):chip("c-crit","niedrig"))+
+    meter("Albumin",alb,"g/l",[{from:0,to:30,c:"z-crit"},{from:30,to:35,c:"z-warn"},{from:35,to:55,c:"z-ok"}],55,
+      albVeryLow?chip("c-crit","niedrig"):albLow?chip("c-warn","erniedrigt"):chip("c-ok","normal"))+
+    meter("Homocystein",hcy,"µmol/l",[{from:0,to:hcyRef,c:"z-ok"},{from:hcyRef,to:15,c:"z-warn"},{from:15,to:30,c:"z-crit"}],30,
+      hcyClear?chip("c-crit","erhöht"):hcyHigh?chip("c-warn","über Ziel"):chip("c-ok","im Ziel"));
+
+  const W=[];
+  W.push(`Gemessen ${fmt(thiol)} µmol/l, auf 42 g/l Albumin korrigiert ${fmt(corr)} µmol/l. Das sind ${Math.round(r*100)} % der unteren Referenz (${fmt(ref)}).`);
+  if(albLow) W.push(`Albumin ist mit ${fmt(alb)} g/l erniedrigt. Ein Teil des niedrigen Rohwerts erklärt sich dadurch. Die Korrektur gleicht das rechnerisch aus.`);
+  else if(alb>48) W.push(`Albumin ist mit ${fmt(alb)} g/l hoch (z. B. Dehydratation). Der korrigierte Wert fällt dadurch niedriger aus als der Rohwert.`);
+  if(hcyClear) W.push(`Homocystein von ${fmt(hcy)} µmol/l spricht für eine Störung von Methylierung oder Transsulfurierung. Hcy bindet an Albumin-Cys34 und senkt so die freien Thiole.`);
+  else if(hcyHigh) W.push(`Homocystein liegt mit ${fmt(hcy)} µmol/l über dem funktionellen Ziel von ${fmt(hcyRef)}. Ein leichter Beitrag zum Thiolverlust ist möglich.`);
+  else if(r<1&&hcyLow) W.push(`Homocystein ist mit ${fmt(hcy)} µmol/l niedrig. Zusammen mit niedrigen Thiolen spricht das eher für eine geringe Zufuhr von Schwefelaminosäuren als für einen Methylierungsblock.`);
+  else if(r<1) W.push(`Homocystein ist unauffällig. Der Thiolverlust ist damit eher oxidativ bedingt (Verbrauch) als methylierungsbedingt.`);
+  why.innerHTML=W.map(t=>`<li>${t}</li>`).join("");
+
+  const T=[];
+  if(r<1){
+    if(hcyClear) T.push("Zuerst bzw. parallel Homocystein senken: aktives B12, 5-MTHF, P5P (B6), Riboflavin, ggf. Betain/TMG. NAC ist hier doppelt sinnvoll, weil es Hcy von Albumin verdrängt und die renale Ausscheidung fördert.");
+    T.push(r<.85
+      ? "Thiol-Donatoren einsetzen, z. B. NAC oder GlyNAC (Glycin + NAC), liposomales Glutathion, Alpha-Liponsäure."
+      : "Thiol-Donatoren moderat erwägen, z. B. NAC oder GlyNAC. Vorher prüfen, ob oxidative Belastungen (Entzündung, Toxine, Rauchen, Training) reduzierbar sind.");
+    if(hcyLow||albLow) T.push("Eiweiß- und Methioninzufuhr überprüfen. Ausreichend Protein ist die Basis für Albumin, Cystein und Glutathion.");
+    T.push("Kontrolle von Thiol-Status, Albumin und Homocystein nach 8 bis 12 Wochen, gleiches Labor.");
+  } else {
+    T.push("Keine Thiol-Substitution nötig.");
+    if(hcyHigh) T.push("Homocystein trotzdem angehen (B12, Folat, B6, Riboflavin), damit der Thiol-Status stabil bleibt.");
+    if(albLow) T.push("Ursache des niedrigen Albumins klären (Proteinzufuhr, Entzündung, Leber, Niere).");
+    T.push("Verlaufskontrolle bei Bedarf in 6 bis 12 Monaten.");
+  }
+  if(albVeryLow) T.push("Bei Albumin unter 30 g/l ist die Korrektur unsicher. Ergebnis vorsichtig interpretieren.");
+  todo.innerHTML=T.map(t=>`<li>${t}</li>`).join("");
+
+  const persist=$("persist").checked, tox=$("tox").checked, infl=$("infl").checked, extra=tox||infl;
+  const pick=new Set(); let lvl, stext;
+  if(r<.85||persist||(r<1&&extra)){
+    lvl="empf"; pick.add("detox"); pick.add("ox");
+    stext=persist?"Thiole bleiben trotz Substitution niedrig. Eine genetisch eingeschränkte Entgiftungs- oder Antioxidans-Kapazität ist dann eine naheliegende Erklärung."
+      :r<.85?"Der deutlich erniedrigte Thiol-Status rechtfertigt eine Abklärung der Entgiftungs- und Antioxidans-Genetik. Sie hilft, Dosis und Dauer der Substitution zu begründen."
+      :"Grenzwertige Thiole plus zusätzliche Belastung: Die Genetik zeigt, wie viel Puffer der Patient dafür hat.";
+  } else if(r<1){
+    lvl="sinn"; pick.add("detox"); pick.add("ox");
+    stext="Bei grenzwertigen Thiolen optional. Sinnvoll vor allem, wenn die Kontrolle nach 8 bis 12 Wochen keine Besserung zeigt oder weitere Belastungen dazukommen.";
+  } else if(extra){
+    lvl="sinn"; pick.add("detox"); if(infl) pick.add("ox");
+    stext="Thiole sind aktuell ausreichend. Bei bekannter Belastung kann die Genetik trotzdem zeigen, wie belastbar das System langfristig ist.";
+  } else {
+    lvl="none"; stext="Aus diesen Werten ergibt sich keine Indikation für eine Entgiftungs- oder Oxidativstress-Genetik.";
+  }
+  if(hcyClear){ pick.add("meth"); lvl="empf"; stext+=" Wegen des erhöhten Homocysteins sind zusätzlich die Methylierungs-SNPs empfehlenswert."; }
+  else if(hcyHigh){ pick.add("meth"); if(lvl==="none") lvl="sinn"; stext+=" Homocystein über Ziel: Methylierungs-SNPs können klären, ob eine genetische Komponente vorliegt."; }
+  const L={empf:["c-warn","empfehlenswert"],sinn:["c-ok","sinnvoll bei Bedarf"],none:["c-none","nicht notwendig"]}[lvl];
+  $("snpChip").className="chip "+L[0]; $("snpChip").textContent=L[1];
+  $("snpText").textContent=stext;
+  $("snpPanels").innerHTML=[...pick].map(k=>{const p=PANELS[k];return `<div class="gp"><b>${p.t}</b><span>${p.g}</span><em>${p.w}</em></div>`}).join("");
+  $("snp").hidden=false;
+}
+ids.forEach(id=>{$(id).addEventListener("input",calc);$(id).addEventListener("change",calc)});
+$("albUnit").addEventListener("change",()=>{const a=num("alb");if(a){const toGl=$("albUnit").value==="gl";if(toGl&&a<10)$("alb").value=+(a*10).toFixed(1);if(!toGl&&a>=10)$("alb").value=+(a/10).toFixed(2)}calc()});
+$("reset").addEventListener("click",()=>{["thiol","alb","hcy"].forEach(id=>$(id).value="");["persist","tox","infl"].forEach(id=>$(id).checked=false);calc();$("thiol").focus()});
+calc();
+try{ if("serviceWorker" in navigator && location.protocol==="https:" && /github\.io$|vis-vitalis/.test(location.hostname)) navigator.serviceWorker.register("sw.js"); }catch(e){}
+</script>
+
+</body>
+</html>
