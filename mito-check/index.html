@@ -1062,11 +1062,15 @@ function buildSNPBlock(auffSNPs) {
     return `<span class="snp-tag ${cls}">${c.name}: ${label}</span>`;
   }).join('');
 
-  const advices = auffSNPs.map(c =>
-    `<p><strong>${c.name}:</strong> ${c.advice.auff}</p>`
-  ).join('');
+  const order = {auff:0, unbek:1, unauf:2};
+  const advices = allCats
+    .slice()
+    .sort((a,b) => order[snps[a.id]] - order[snps[b.id]])
+    .map(c => `<p><strong>${c.name}:</strong> ${c.advice[snps[c.id]]}</p>`)
+    .join('');
 
-  const snpGeneral = auffSNPs.length > 0 ? '' : `
+  const allUnknown = allCats.every(c => snps[c.id] === 'unbek');
+  const snpGeneral = (auffSNPs.length > 0 && !allUnknown) ? '' : `
     <p>Ein SNP-Panel kann Auskunft geben über genetisch bedingte Stoffwechselengpässe —
     in der Entgiftung, dem antioxidativen Schutz, der Entzündungsregulation und dem
     Mikronährstoffstoffwechsel. Dies kann erklären, warum Standard-Protokolle bei
@@ -1084,86 +1088,30 @@ function buildSNPBlock(auffSNPs) {
 }
 
 function buildProtocol() {
+  const rows = [
+    ["Aktive B-Vitamine (B1, B2, B3, B5)", "Kofaktoren von Pyruvat-Dehydrogenase, Zitratzyklus und Komplex I/II (als TPP, FAD/FMN, NAD⁺, CoA)", "Engpässe bremsen den Substratfluss in die Atmungskette"],
+    ["Coenzym Q10", "Elektronenüberträger von Komplex I und II auf Komplex III; zugleich lipophiles Antioxidans", "Statine hemmen die körpereigene Synthese über den Mevalonatweg"],
+    ["Magnesium", "ATP liegt intrazellulär überwiegend als Mg-ATP vor; Kofaktor zahlreicher Kinasen", "Serumwerte spiegeln den intrazellulären Status nur begrenzt"],
+    ["Spurenelemente (Fe, Cu, Mn, Se, Zn)", "Eisen-Schwefel-Cluster (Komplex I–III), Kupfer in Komplex IV, Mangan in SOD2, Selen in GPX", "Verbindet Energiegewinnung mit antioxidativem Schutz"],
+    ["L-Carnitin", "Transport langkettiger Fettsäuren in die Mitochondrienmatrix (Carnitin-Shuttle)", "Relevant für die Beta-Oxidation, v. a. in Herz- und Skelettmuskel"],
+    ["Kreatin", "Phosphokreatin-Shuttle puffert ATP zwischen Mitochondrium und Zytosol", "Besonders bedeutsam in Geweben mit hohem Energiebedarf"],
+    ["Alpha-Liponsäure", "Kofaktor von Pyruvat- und α-Ketoglutarat-Dehydrogenase; Redoxpartner im Antioxidantien-Netzwerk", "Verbindet Glykolyse und Zitratzyklus"]
+  ];
   return `
     <div class="protocol-block">
-      <div class="protocol-head">Mitochondrialer Basisplan — Beispielprotokoll</div>
+      <div class="protocol-head">Hintergrund · Mitochondriale Kofaktoren</div>
       <div class="protocol-body">
-        <p>Die folgende Zusammenstellung zeigt, wie eine strukturierte mitochondriale
-        Basisversorgung aussehen kann. Sie dient als Orientierung — individuelle Anpassungen
-        je nach Befund und Verträglichkeit sind ausdrücklich erwünscht.</p>
+        <p>Die folgende Übersicht erklärt, welche Nährstoffe an der mitochondrialen
+        Energiegewinnung beteiligt sind und an welcher Stelle sie wirken. Sie dient dem
+        Verständnis der Zusammenhänge und ist keine Therapie- oder Dosierungsempfehlung.</p>
         <table class="protocol-table">
-          <tr>
-            <th>Produkt</th>
-            <th>Dosierung</th>
-            <th>Zeitpunkt</th>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">SFI Active B</div>
-              <div class="prod-sub">B-Komplex aktive Formen</div>
-            </td>
-            <td>1–2 Kps. täglich</td>
-            <td>Mit Mahlzeit</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">DFH Mitochondrial NRG</div>
-              <div class="prod-sub">Alternative zu SFI Active B</div>
-            </td>
-            <td>4 Kps./T → 2 Kps./T</td>
-            <td>Mit Mahlzeit</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">Apex Q10 Supermax</div>
-              <div class="prod-sub">Ubiquinol — CoQ10 Shuttle</div>
-            </td>
-            <td>W1: 2 Kps. · W2: 1 Kps.<br>ab W3: jeden 2. Tag</td>
-            <td>Mit fetthaltiger Mahlzeit</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">New Roots MultiMineral</div>
-              <div class="prod-sub">Spurenelemente & Kofaktoren</div>
-            </td>
-            <td>Gemäß Packungsangabe</td>
-            <td>Mit Mahlzeit</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">Quicksilver Thrivagen</div>
-              <div class="prod-sub">Adaptogen · HPA-Unterstützung</div>
-            </td>
-            <td>2–4 Hübe täglich</td>
-            <td>Morgens, nüchtern</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">ITL Prizmag</div>
-              <div class="prod-sub">Magnesium komplex</div>
-            </td>
-            <td>2 Kapseln täglich</td>
-            <td>Abends vor dem Schlafen</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="prod-name">Nordic Health Daily Creatine</div>
-              <div class="prod-sub">Creatin Monohydrat</div>
-            </td>
-            <td>1 gehäufter TL (~5g)</td>
-            <td>Täglich, flexibel</td>
-          </tr>
+          <tr><th>Nährstoff</th><th>Rolle im Mitochondrium</th><th>Klinischer Kontext</th></tr>
+          ${rows.map(r => `<tr><td><div class="prod-name">${r[0]}</div></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
         </table>
-        <a class="protocol-link"
-           href="https://nordicvms.com/recommendation?cartkey=8EAC3D71D1B846564C38337ABC3BD2AD"
-           target="_blank"
-           rel="noopener noreferrer">
-          Protokoll im NordicVMS öffnen ↗
-        </a>
         <p class="protocol-disclaimer">
-          SFI Active B und DFH Mitochondrial NRG sind Alternativen — nicht Kombinationen.
-          Wählen Sie eines der beiden Produkte. Erstellen Sie Ihr eigenes individuelles
-          Protokoll auf Basis der Patientenbedürfnisse.
+          Ausschließlich zu Fortbildungszwecken. Die Auswahl, Dosierung und Kombination
+          von Nährstoffen erfolgt individuell im Rahmen der ärztlichen oder therapeutischen
+          Beurteilung.
         </p>
       </div>
     </div>`;
