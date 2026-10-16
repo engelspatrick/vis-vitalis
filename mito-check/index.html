@@ -3,80 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mito-Mikronährstoff-SNP Check</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<title>Mito-Check · vis vitalis</title>
+<link href="https://fonts.googleapis.com/css2?family=Domine:wght@500;700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /* ── Reset & Base ─────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --blue:#007DA5;
-  --blue-dark:#005f80;
-  --blue-light:#EDF6FA;
-  --blue-mid:#C5DDE8;
-  --orange:#F89C53;
-  --orange-dark:#c07000;
-  --orange-light:#FFF8EE;
-  --dark:#1A2E35;
-  --mid:#4A6572;
-  --muted:#7F9BA6;
-  --grey-light:#F7FBFD;
+  /* Vis Vitalis huisstijl: Redwood #ae5e4e, Feldgrau #3b4939, Mantis #79b473, Sunset #fccf9d, Powder Blue #a8c6da */
+  --blue:#ae5e4e;
+  --blue-dark:#8f4a3c;
+  --blue-light:#f4e8e5;
+  --blue-mid:#dcbcb4;
+  --orange:#b9773a;
+  --orange-dark:#9a5a12;
+  --orange-light:#fdeedd;
+  --dark:#2a3428;
+  --mid:#5f6b5c;
+  --muted:#7d8879;
+  --grey-light:#f5f6f2;
   --white:#ffffff;
-  --red:#c0392b;
-  --red-light:#fde8e8;
-  --green:#2a7a50;
-  --green-light:#e8f7ef;
-  --border:#C5DDE8;
+  --red:#9c3f30;
+  --red-light:#f6e2de;
+  --green:#3f7d39;
+  --green-light:#e6f2e4;
+  --border:#dde2d8;
+  --feldgrau:#3b4939;
+  --sunset:#fccf9d;
   --radius:10px;
-  --shadow:0 2px 12px rgba(0,125,165,0.08);
+  --shadow:0 2px 12px rgba(59,73,57,0.07);
+  --f-head:"Domine",Georgia,"Times New Roman",serif;
+  --f-body:"Lato","Helvetica Neue",Arial,sans-serif;
 }
 html{scroll-behavior:smooth}
 body{
-  font-family:'Open Sans',sans-serif;
+  font-family:var(--f-body);
   font-size:14px;
   color:var(--dark);
-  background:#F0F7FA;
+  background:var(--grey-light);
   min-height:100vh;
   line-height:1.6;
 }
 
 /* ── Layout ───────────────────────────────────── */
-.page-header{
-  background:var(--blue);
-  padding:2rem 1rem;
-  text-align:center;
-}
-.page-header h1{
-  font-family:'Montserrat',sans-serif;
-  font-size:clamp(1.3rem,3vw,1.9rem);
-  font-weight:700;
-  color:var(--white);
-  margin-bottom:0.4rem;
-}
-.page-header p{
-  font-size:13px;
-  color:rgba(255,255,255,0.75);
-  max-width:560px;
-  margin:0 auto;
-}
-.logo-bar{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  margin-bottom:1rem;
-}
-.logo-dot{
-  width:10px;height:10px;border-radius:50%;
-  background:var(--orange);
-}
-.logo-text{
-  font-family:'Montserrat',sans-serif;
-  font-size:12px;
-  font-weight:700;
-  color:rgba(255,255,255,0.6);
-  letter-spacing:2px;
-  text-transform:uppercase;
-}
+.topbar{background:var(--feldgrau);color:#f5f6f2}
+.topbar .in{max-width:720px;margin:0 auto;padding:14px 1rem;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--f-head);font-weight:700;font-size:22px;letter-spacing:.01em;color:var(--sunset);text-decoration:none}
+.tagline{font-size:13px;opacity:.85;font-style:italic}
+.intro-head{max-width:720px;margin:0 auto;padding:1.75rem 1rem 0;display:grid;gap:8px}
+.eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:700}
+.intro-head h1{font-family:var(--f-head);font-weight:700;font-size:clamp(1.6rem,4vw,2.3rem);line-height:1.15;color:var(--dark);text-wrap:balance}
+.intro-head p{color:var(--mid);font-size:14.5px;max-width:60ch}
+.card-title,.snp-title,.result-head{font-family:var(--f-head)!important}
 
 .container{
   max-width:720px;
@@ -105,7 +82,7 @@ body{
 .card-header:hover{background:var(--blue-light)}
 .card-header-left{flex:1}
 .card-title{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:13px;
   font-weight:700;
   color:var(--blue);
@@ -116,7 +93,7 @@ body{
   margin-top:2px;
 }
 .card-badge{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:11px;
   font-weight:700;
   padding:3px 12px;
@@ -127,8 +104,8 @@ body{
   transition:all 0.2s;
 }
 .badge-none{background:var(--blue-light);color:var(--blue)}
-.badge-low{background:#e0f5eb;color:#2a7a50}
-.badge-mid{background:#fff3e0;color:var(--orange-dark)}
+.badge-low{background:var(--green-light);color:var(--green)}
+.badge-mid{background:var(--orange-light);color:var(--orange-dark)}
 .badge-high{background:var(--red-light);color:var(--red)}
 .chevron{
   font-size:16px;
@@ -167,7 +144,7 @@ body{
   box-shadow:var(--shadow);
 }
 .section-eyebrow{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:10px;
   font-weight:700;
   letter-spacing:1.5px;
@@ -183,7 +160,7 @@ body{
 }
 .radio-group{display:flex;gap:8px;flex-wrap:wrap}
 .radio-btn{
-  font-family:'Open Sans',sans-serif;
+  font-family:var(--f-body);
   font-size:12px;
   padding:6px 18px;
   border-radius:20px;
@@ -223,7 +200,7 @@ body{
   box-shadow:var(--shadow);
 }
 .score-label{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:9px;
   font-weight:700;
   color:var(--blue);
@@ -238,12 +215,12 @@ body{
   line-height:1.3;
 }
 .score-num{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:22px;
   font-weight:700;
 }
 .sn-none{color:var(--blue-mid)}
-.sn-low{color:#2a7a50}
+.sn-low{color:var(--green)}
 .sn-mid{color:var(--orange-dark)}
 .sn-high{color:var(--red)}
 
@@ -265,7 +242,7 @@ body{
 }
 .q-btns{display:flex;gap:6px;flex-shrink:0;padding-top:2px}
 .q-btn{
-  font-family:'Open Sans',sans-serif;
+  font-family:var(--f-body);
   font-size:12px;
   padding:5px 13px;
   border-radius:20px;
@@ -283,8 +260,8 @@ body{
   font-weight:600;
 }
 .q-btn.sel-nein{
-  background:#2a7a50;
-  border-color:#2a7a50;
+  background:var(--green);
+  border-color:var(--green);
   color:var(--white);
   font-weight:600;
 }
@@ -299,7 +276,7 @@ body{
   box-shadow:var(--shadow);
 }
 .snp-header{
-  background:var(--dark);
+  background:var(--feldgrau);
   padding:0.9rem 1.25rem;
   cursor:pointer;
   display:flex;
@@ -307,9 +284,9 @@ body{
   align-items:center;
   user-select:none;
 }
-.snp-header:hover{background:#243840}
+.snp-header:hover{background:#2f3b2e}
 .snp-title{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:13px;
   font-weight:700;
   color:var(--white);
@@ -361,7 +338,7 @@ body{
   max-width:280px;
 }
 .snp-btn{
-  font-family:'Open Sans',sans-serif;
+  font-family:var(--f-body);
   font-size:11px;
   padding:5px 11px;
   border-radius:20px;
@@ -380,8 +357,8 @@ body{
   font-weight:600;
 }
 .snp-btn.sel-unauf{
-  background:#2a7a50;
-  border-color:#2a7a50;
+  background:var(--green);
+  border-color:var(--green);
   color:var(--white);
   font-weight:600;
 }
@@ -400,7 +377,7 @@ body{
   flex-wrap:wrap;
 }
 .btn-primary{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:13px;
   font-weight:700;
   padding:12px 28px;
@@ -416,7 +393,7 @@ body{
 }
 .btn-primary:hover{background:var(--blue-dark)}
 .btn-reset{
-  font-family:'Open Sans',sans-serif;
+  font-family:var(--f-body);
   font-size:13px;
   padding:12px 20px;
   border-radius:8px;
@@ -437,11 +414,11 @@ body{
   margin-bottom:1rem;
   box-shadow:var(--shadow);
 }
-.res-a{background:var(--green-light);border:0.5px solid #2a7a50}
+.res-a{background:var(--green-light);border:0.5px solid var(--green)}
 .res-b{background:var(--orange-light);border:0.5px solid var(--orange)}
 .res-c{background:var(--blue-light);border:0.5px solid var(--blue)}
 .result-head{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:15px;
   font-weight:700;
   margin-bottom:10px;
@@ -464,7 +441,7 @@ body{
   border-radius:8px;
 }
 .snp-result-title{
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:12px;
   font-weight:700;
   color:var(--dark);
@@ -483,8 +460,8 @@ body{
   font-weight:600;
 }
 .tag-auff{background:var(--orange-light);color:var(--orange-dark);border:0.5px solid var(--orange)}
-.tag-unauf{background:var(--green-light);color:var(--green);border:0.5px solid #2a7a50}
-.tag-unbek{background:#f1efe8;color:var(--muted);border:0.5px solid #ccc}
+.tag-unauf{background:var(--green-light);color:var(--green);border:0.5px solid var(--green)}
+.tag-unbek{background:#f1efe8;color:var(--muted);border:0.5px solid var(--border)}
 .snp-advice{font-size:12px;color:var(--mid);line-height:1.6}
 
 /* ── Protocol block ───────────────────────────── */
@@ -498,7 +475,7 @@ body{
 .protocol-head{
   background:var(--blue);
   padding:10px 16px;
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:11px;
   font-weight:700;
   color:var(--white);
@@ -511,7 +488,7 @@ body{
 .protocol-table th{
   background:var(--blue-light);
   color:var(--blue);
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:10px;
   font-weight:700;
   padding:7px 10px;
@@ -536,7 +513,7 @@ body{
   background:var(--orange);
   color:var(--white);
   border-radius:8px;
-  font-family:'Montserrat',sans-serif;
+  font-family:var(--f-body);
   font-size:12px;
   font-weight:700;
   text-decoration:none;
@@ -554,7 +531,7 @@ body{
   border:0.5px solid var(--orange);
   border-radius:8px;
   font-size:12px;
-  color:#7a4a00;
+  color:var(--orange-dark);
   line-height:1.6;
 }
 .suppl-note strong{color:var(--orange-dark)}
@@ -608,11 +585,10 @@ footer a{color:var(--blue);text-decoration:none}
 </head>
 <body>
 
-<header class="page-header">
-  <div class="logo-bar">
-    <div class="logo-dot"></div>
-    <span class="logo-text">Vis-Vitalis · Functional Medicine</span>
-  </div>
+<div class="topbar"><div class="in"><span class="brand">vis vitalis</span><span class="tagline">ervaar jouw levenskracht</span></div></div>
+
+<header class="intro-head">
+  <div class="eyebrow">Praxis-Tool · Mitochondrien &amp; Mikronährstoffe</div>
   <h1>Mito-Mikronährstoff-SNP Check</h1>
   <p>Strukturierte Orientierung für die nächsten therapeutischen Schritte — kein Laborbefund, kein Diagnoseinstrument.</p>
 </header>
@@ -700,7 +676,7 @@ footer a{color:var(--blue);text-decoration:none}
 </div>
 
 <footer>
-  <p>Vis-Vitalis · Patrick Engels — Klinische Ernährungsberatung &amp; Funktionelle Medizin</p>
+  <p><span style="font-family:var(--f-head);color:var(--blue);font-weight:700">vis vitalis</span> · Patrick Engels — Klinische Ernährungsberatung &amp; Funktionelle Medizin</p>
   <p style="margin-top:4px"><a href="https://vis-vitalis.nl" target="_blank">vis-vitalis.nl</a></p>
 </footer>
 
