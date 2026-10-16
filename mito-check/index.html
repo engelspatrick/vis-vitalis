@@ -666,7 +666,7 @@ footer a{color:var(--blue);text-decoration:none}
 
   <!-- Actions -->
   <div class="actions">
-    <button class="btn-primary" onclick="evaluate()">Auswertung anzeigen</button>
+    <button class="btn-primary" onclick="auswerten()">Auswertung anzeigen</button>
     <button class="btn-reset"   onclick="resetAll()">Zurücksetzen</button>
   </div>
 
@@ -934,13 +934,16 @@ function setEntry(v) {
 
 // ── EVALUATE ──────────────────────────────────────────────────────────────
 
-function evaluate() {
+function auswerten() {
   const scores   = ans.map(a => a.filter(v => v === true).length);
   const total    = scores.reduce((s, v) => s + v, 0);
   const answered = ans.flat().filter(a => a !== null).length;
 
   if (answered < 12) {
-    alert('Bitte beantworten Sie mindestens drei Module vollständig für eine aussagekräftige Auswertung.');
+    const r0 = document.getElementById('result');
+    r0.innerHTML = `<div class="result-card res-b"><div class="result-body"><p><strong>Noch zu wenige Antworten (${answered}/20).</strong> Bitte beantworten Sie mindestens drei Module vollständig für eine aussagekräftige Auswertung.</p></div></div>`;
+    r0.className = 'result show';
+    r0.scrollIntoView({behavior:'smooth', block:'start'});
     return;
   }
 
