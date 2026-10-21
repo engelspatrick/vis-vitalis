@@ -175,11 +175,11 @@ footer .brand-s{font-family:var(--f-head);color:var(--accent);font-weight:700}
   <section class="panel" style="gap:10px" aria-labelledby="how-h">
     <h2 id="how-h">So rechnet das Tool</h2>
     <div class="formula">Thiol korrigiert = Thiol gemessen × 42 ÷ Albumin (g/l) → Verhältnis = korrigiert ÷ untere Referenz</div>
-    <p class="note">42 g/l Albumin entsprechen etwa 630 µmol/l Albumin. Bei 60–70 % reduziertem Cys34 ergibt das rund 400 µmol/l freie Thiole. Verhältnis ≥ 1,00: unnötig · 0,85–0,99: empfehlenswert · &lt; 0,85: erforderlich. Homocystein verschiebt die Kategorie nicht, bestimmt aber, ob zuerst oder parallel Methylierung und Transsulfurierung behandelt werden sollten. Erhöhtes Hcy bindet per Disulfid an Albumin-Cys34 und senkt so die freien Thiole.</p>
+    <p class="note">42 g/l Albumin entsprechen etwa 630 µmol/l Albumin. Bei 60–70 % reduziertem Cys34 ergibt das rund 400 µmol/l freie Thiole. Verhältnis ≥ 1,00: unnötig · 0,85–0,99: empfehlenswert · &lt; 0,85: erforderlich. Homocystein über 15 µmol/l hebt die Einstufung um eine Stufe, weil NAC Homocystein senkt und Plasma-Cystein erhöht (Hildebrandt et al., Am J Clin Nutr 2015). Außerdem zeigt es, ob zuerst oder parallel Methylierung und Transsulfurierung behandelt werden sollten. Erhöhtes Hcy bindet per Disulfid an Albumin-Cys34 und senkt so die freien Thiole.</p>
     <p class="note">Orientierungshilfe zur Unterstützung der klinischen Beurteilung, kein Ersatz dafür. Grenzwerte sind laborabhängig. Die Albuminkorrektur ist eine vereinfachte Näherung und wird unter 30 g/l unsicher. Präanalytik: Probe zügig zentrifugieren oder kühlen, sonst steigt Hcy und die Thiole oxidieren nach.</p>
   </section>
 
-  <footer><span><span class="brand-s">vis vitalis</span> · Patrick Engels</span><span>Version 1.0 · Funktioniert auch offline</span></footer>
+  <footer><span><span class="brand-s">vis vitalis</span> · Patrick Engels</span><span>Version 1.1 ·Funktioniert auch offline</span></footer>
 </div>
 
 <script>
@@ -209,11 +209,13 @@ function calc(){
   const corr=thiol*42/alb, r=corr/ref;
   const albLow=alb<35, albVeryLow=alb<30, hcyHigh=hcy>hcyRef, hcyClear=hcy>15, hcyLow=hcy<6;
 
-  let cls,word,text;
-  if(r>=1){cls="v-ok";word="Unnötig";text="Der albuminkorrigierte Thiol-Status liegt im Referenzbereich."}
-  else if(r>=.85){cls="v-warn";word="Empfehlenswert";text="Der albuminkorrigierte Thiol-Status liegt knapp unter der Referenz."}
-  else{cls="v-crit";word="Erforderlich";text="Der albuminkorrigierte Thiol-Status ist deutlich erniedrigt."}
-  if(r<1&&hcyClear) text+=" Homocystein ist erhöht und trägt wahrscheinlich zum Thiolverlust bei.";
+  let lvlV=r>=1?0:r>=.85?1:2;
+  const bump=hcyClear&&lvlV<2;
+  if(bump) lvlV++;
+  const [cls,word]=[["v-ok","Unnötig"],["v-warn","Empfehlenswert"],["v-crit","Erforderlich"]][lvlV];
+  let text=r>=1?"Der albuminkorrigierte Thiol-Status liegt im Referenzbereich.":r>=.85?"Der albuminkorrigierte Thiol-Status liegt knapp unter der Referenz.":"Der albuminkorrigierte Thiol-Status ist deutlich erniedrigt.";
+  if(bump) text+=" Wegen des erhöhten Homocysteins eine Stufe höher eingestuft: NAC senkt Homocystein und erhöht das Plasma-Cystein.";
+  else if(hcyClear) text+=" Homocystein ist erhöht und trägt wahrscheinlich zum Thiolverlust bei.";
   v.className="verdict "+cls; v.querySelector(".word").textContent=word; $("vText").textContent=text;
 
   const tMax=ref*1.5;
@@ -230,6 +232,7 @@ function calc(){
   if(albLow) W.push(`Albumin ist mit ${fmt(alb)} g/l erniedrigt. Ein Teil des niedrigen Rohwerts erklärt sich dadurch. Die Korrektur gleicht das rechnerisch aus.`);
   else if(alb>48) W.push(`Albumin ist mit ${fmt(alb)} g/l hoch (z. B. Dehydratation). Der korrigierte Wert fällt dadurch niedriger aus als der Rohwert.`);
   if(hcyClear) W.push(`Homocystein von ${fmt(hcy)} µmol/l spricht für eine Störung von Methylierung oder Transsulfurierung. Hcy bindet an Albumin-Cys34 und senkt so die freien Thiole.`);
+  if(bump) W.push("Homocystein über 15 µmol/l hebt die Einstufung um eine Stufe. In einer placebokontrollierten Studie senkte NAC (1,8 g/Tag, 4 Wochen) Homocystein um etwa 12 % und erhöhte Plasma-Cystein um etwa 28 % (Hildebrandt et al., Am J Clin Nutr 2015).");
   else if(hcyHigh) W.push(`Homocystein liegt mit ${fmt(hcy)} µmol/l über dem funktionellen Ziel von ${fmt(hcyRef)}. Ein leichter Beitrag zum Thiolverlust ist möglich.`);
   else if(r<1&&hcyLow) W.push(`Homocystein ist mit ${fmt(hcy)} µmol/l niedrig. Zusammen mit niedrigen Thiolen spricht das eher für eine geringe Zufuhr von Schwefelaminosäuren als für einen Methylierungsblock.`);
   else if(r<1) W.push(`Homocystein ist unauffällig. Der Thiolverlust ist damit eher oxidativ bedingt (Verbrauch) als methylierungsbedingt.`);
@@ -244,8 +247,13 @@ function calc(){
     if(hcyLow||albLow) T.push("Eiweiß- und Methioninzufuhr überprüfen. Ausreichend Protein ist die Basis für Albumin, Cystein und Glutathion.");
     T.push("Kontrolle von Thiol-Status, Albumin und Homocystein nach 8 bis 12 Wochen, gleiches Labor.");
   } else {
-    T.push("Keine Thiol-Substitution nötig.");
-    if(hcyHigh) T.push("Homocystein trotzdem angehen (B12, Folat, B6, Riboflavin), damit der Thiol-Status stabil bleibt.");
+    if(hcyClear){
+      T.push("Homocystein senken mit aktivem B12, 5-MTHF, P5P (B6) und Riboflavin, ggf. Betain/TMG. Das bleibt die Basis.");
+      T.push("NAC ergänzend einsetzen (z. B. 1,2–1,8 g/Tag). Es setzt Homocystein aus der Albuminbindung frei, fördert die renale Ausscheidung und stabilisiert den Thiol-Status.");
+    } else {
+      T.push("Keine Thiol-Substitution nötig.");
+      if(hcyHigh) T.push("Homocystein trotzdem angehen (B12, Folat, B6, Riboflavin), damit der Thiol-Status stabil bleibt.");
+    }
     if(albLow) T.push("Ursache des niedrigen Albumins klären (Proteinzufuhr, Entzündung, Leber, Niere).");
     T.push("Verlaufskontrolle bei Bedarf in 6 bis 12 Monaten.");
   }
