@@ -133,7 +133,8 @@ button{font:inherit;cursor:pointer}
 }
 
 /* v2 aanvullingen */
-.addbtn{border:1px dashed var(--line);background:transparent;color:var(--accent);border-radius:8px;padding:7px 12px;font-size:.86rem;font-weight:700;margin-top:10px;justify-self:start}
+.addrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.addbtn{border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:5px 11px;font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px}
 .addbtn:hover{border-color:var(--accent)}
 .lands{font-size:.84rem;color:var(--muted);min-height:1.3em}
 .lands b{color:var(--brand)}
@@ -161,7 +162,7 @@ button{font:inherit;cursor:pointer}
       <p class="eyebrow">Vorbereitung auf Ihr Erstgespräch</p>
       <h1>Meine Lebenslinie</h1>
       <p class="lead">Ihre Gesundheit von heute hat eine Geschichte. Sie beginnt schon vor Ihrer Geburt. Mit dieser Zeitleiste zeichnen Sie diese Geschichte selbst auf.</p>
-      <p style="margin-top:10px">Es gibt keine richtigen oder falschen Antworten. Tragen Sie ein, was Sie wissen, was man Ihnen erzählt hat und was Sie vermuten, und kennzeichnen Sie es entsprechend. Gerade die Lücken sind wertvoll: Vielleicht können Sie in der Familie nachfragen. Nehmen Sie sich Zeit, Sie können später weitermachen.</p>
+      <p style="margin-top:10px">Es gibt keine richtigen oder falschen Antworten. Tragen Sie ein, was Sie wissen oder was man Ihnen erzählt hat, auch wenn es nur ungefähr ist. Gerade die Lücken sind wertvoll: Vielleicht können Sie in der Familie nachfragen. Nehmen Sie sich Zeit, Sie können später weitermachen.</p>
     </div>
     <div class="panel">
       <h3>Zu Ihrer Person</h3>
@@ -179,16 +180,16 @@ button{font:inherit;cursor:pointer}
       <h2>Überblick</h2>
       <div class="legends">
         <div class="legend" id="catLegend"></div>
-        <div class="legend certleg" id="certLegend"></div>
       </div>
     </div>
-    <p style="font-size:.88rem;color:var(--muted)">Jeder Punkt ist ein Ereignis auf Ihrer Altersachse, ein Balken ist ein Zeitraum. Die Linie darüber zeigt, wie Sie sich in dieser Zeit gefühlt haben, soweit Sie das eingetragen haben.</p>
+    <p style="font-size:.88rem;color:var(--muted)">Jeder Punkt ist ein Ereignis auf Ihrer Altersachse, ein Balken ist ein Zeitraum. Die Farbe zeigt die Art des Ereignisses.</p>
     <div class="svgbox"><svg id="ov" viewBox="0 0 820 190" role="img" aria-label="Überblick der Ereignisse auf einer Altersachse"></svg></div>
   </section>
 
   <section class="main">
     <form class="panel form" id="evForm" autocomplete="off">
       <h2 id="formTitle">Ereignis hinzufügen</h2>
+      <div><label>Was möchten Sie eintragen? <span style="font-weight:400">(Mehrfachauswahl möglich)</span></label><div class="chips" id="fCat"></div></div>
       <div><label for="fWat">Was ist passiert?</label><input id="fWat" type="text" placeholder="z. B. Mandeln entfernt"></div>
       <div><label>Wann?</label><div class="chips" id="fWhen"></div></div>
       <div id="ageBlock" class="panel" style="padding:12px;gap:10px;background:var(--bg)">
@@ -203,10 +204,8 @@ button{font:inherit;cursor:pointer}
         </div>
       </div>
       <p class="lands" id="lands"></p>
-      <div><label>Art des Ereignisses <span style="font-weight:400">(Mehrfachauswahl möglich)</span></label><div class="chips" id="fCat"></div></div>
-      <div><label>Woher weiß ich das?</label><div class="chips" id="fCert"></div></div>
-      <div><label>Wie ging es mir in dieser Zeit? <span style="font-weight:400">(1 = schlecht, 5 = gut)</span></label><div class="scale chips" id="fWb"></div></div>
       <div><label for="fNotitie">Erläuterung <span style="font-weight:400">(optional)</span></label><textarea id="fNotitie" placeholder="Was haben Sie davon bemerkt? Was hat sich danach verändert?"></textarea></div>
+      <p id="formErr" role="alert" style="margin:0;font-size:.88rem;font-weight:700;color:var(--redwood)"></p>
       <div class="btns">
         <button type="submit" class="btn" id="fSave">Hinzufügen</button>
         <button type="button" class="btn ghost" id="fCancel" hidden>Abbrechen</button>
@@ -263,12 +262,12 @@ const PHASES=[
   hint:"<b>Denken Sie an:</b> Ihre aktuellen Beschwerden, Medikamente und Nahrungsergänzungsmittel, was hilft und was es verschlimmert, Schlaf, Energie, Stimmung, Verdauung."}
 ];
 const CATS=[
- {id:"ziekte",name:"Krankheit oder Infektion"},
- {id:"medicatie",name:"Medikamente oder Antibiotika"},
- {id:"operatie",name:"Operation oder Unfall"},
- {id:"leven",name:"Lebensereignis oder Stress"},
- {id:"omgeving",name:"Ernährung, Lebensstil, Umwelt"},
- {id:"positief",name:"Was mir gutgetan hat"}
+ {id:"ziekte",name:"Krankheit oder Infektion",short:"Krankheit / Infektion"},
+ {id:"medicatie",name:"Medikamente oder Antibiotika",short:"Medikament / Antibiotikum"},
+ {id:"operatie",name:"Operation oder Unfall",short:"Operation / Unfall"},
+ {id:"leven",name:"Lebensereignis oder Stress",short:"Lebensereignis / Stress"},
+ {id:"omgeving",name:"Ernährung, Lebensstil, Umwelt",short:"Ernährung / Umwelt"},
+ {id:"positief",name:"Was mir gutgetan hat",short:"Was mir gutgetan hat"}
 ];
 const CERTS=[
  {id:"zeker",name:"Weiß ich sicher"},
@@ -279,15 +278,14 @@ const CERTS=[
 const WHENS=[{id:"pre",name:"Vor meiner Geburt"},{id:"age",name:"Mit Alter oder Jahr"},{id:"now",name:"Heute"}];
 const catVar=id=>`var(--c-${id})`;
 const catName=id=>(CATS.find(c=>c.id===id)||CATS[3]).name;
-const certName=id=>(CERTS.find(c=>c.id===id)||CERTS[0]).name;
 
 const EXAMPLES=[
- {when:"pre",from:null,to:null,wat:"Mutter rauchte während der Schwangerschaft",cats:["omgeving"],cert:"verteld",wb:null,notitie:""},
- {when:"age",from:0,to:null,wat:"Per Kaiserschnitt geboren, zwei Wochen zu früh",cats:["operatie"],cert:"verteld",wb:null,notitie:""},
- {when:"age",from:3,to:8,wat:"Immer wieder Mittelohrentzündungen, mehrere Antibiotikakuren",cats:["ziekte","medicatie"],cert:"verteld",wb:3,notitie:""},
- {when:"age",from:13,to:17,wat:"Viel Sport, fühlte mich fit",cats:["positief"],cert:"zeker",wb:5,notitie:""},
- {when:"age",from:28,to:null,wat:"Bauchbeschwerden nach einer Reise nach Thailand",cats:["ziekte","omgeving"],cert:"zeker",wb:2,notitie:"Seitdem empfindlicher gegenüber bestimmten Lebensmitteln."},
- {when:"now",from:null,to:null,wat:"Müde, Blähbauch nach dem Essen",cats:["ziekte"],cert:"zeker",wb:2,notitie:""}
+ {when:"pre",from:null,to:null,wat:"Mutter rauchte während der Schwangerschaft",cats:["omgeving"],notitie:""},
+ {when:"age",from:0,to:null,wat:"Per Kaiserschnitt geboren, zwei Wochen zu früh",cats:["operatie"],notitie:""},
+ {when:"age",from:3,to:8,wat:"Immer wieder Mittelohrentzündungen, mehrere Antibiotikakuren",cats:["ziekte","medicatie"],notitie:""},
+ {when:"age",from:13,to:17,wat:"Viel Sport, fühlte mich fit",cats:["positief"],notitie:""},
+ {when:"age",from:28,to:null,wat:"Bauchbeschwerden nach einer Reise nach Thailand",cats:["ziekte","omgeving"],notitie:"Seitdem empfindlicher gegenüber bestimmten Lebensmitteln."},
+ {when:"now",from:null,to:null,wat:"Müde, Blähbauch nach dem Essen",cats:["ziekte"],notitie:""}
 ].map((e,i)=>({...e,id:"ex"+i,ex:true}));
 const blank=()=>({profile:{naam:"",gebdatum:"",gebplaats:""},reflect:{r1:"",r2:"",r3:""},events:[]});
 
@@ -302,7 +300,7 @@ if(!state){
       state=blank();state.profile.naam=o.profile?.naam||"";state.reflect=o.reflect||state.reflect;
       state.events=own.map((e,i)=>({id:"m"+i,when:e.phase==="pre"?"pre":e.phase==="now"?"now":"age",
         from:e.phase==="pre"||e.phase==="now"?null:(typeof e.age==="number"?e.age:def[e.phase]),to:null,
-        wat:e.wat,cats:[e.cat||"leven"],cert:e.cert||"zeker",wb:e.wb??null,notitie:e.notitie||"",ex:false}));
+        wat:e.wat,cats:[e.cat||"leven"],notitie:e.notitie||"",ex:false}));
       PHASES.forEach(p=>{if(!state.events.some(e=>phaseOf(e)===p.id))state.events.push(EXAMPLES.find(x=>phaseOf(x)===p.id))});
     }}catch(e){}
 }
@@ -331,7 +329,6 @@ function ageLabel(e){
 
 /* legenda's */
 $("catLegend").innerHTML=CATS.map(c=>`<span><i class="dot" style="background:${catVar(c.id)}"></i>${c.name}</span>`).join("");
-$("certLegend").innerHTML=CERTS.map(c=>`<span><i class="cert ${c.id}" style="--cat:var(--ink)">${c.id==="onbekend"?"?":""}</i>${c.name}</span>`).join("");
 
 /* profiel */
 $("naam").value=state.profile.naam||"";
@@ -356,8 +353,6 @@ function chipGroup(el,items,render,multi,optional){el.innerHTML=items.map(render
     el.dispatchEvent(new Event("change"))});}
 chipGroup($("fWhen"),WHENS,w=>`<button type="button" class="chip" data-v="${w.id}" aria-pressed="false">${w.name}</button>`);
 chipGroup($("fCat"),CATS,c=>`<button type="button" class="chip" data-v="${c.id}" aria-pressed="false"><i class="dot" style="background:${catVar(c.id)}"></i>${c.name}</button>`,true);
-chipGroup($("fCert"),CERTS,c=>`<button type="button" class="chip" data-v="${c.id}" aria-pressed="false"><i class="cert ${c.id}" style="--cat:var(--ink)">${c.id==="onbekend"?"?":""}</i>${c.name}</button>`);
-chipGroup($("fWb"),[1,2,3,4,5],n=>`<button type="button" class="chip" data-v="${n}" aria-pressed="false">${n}</button>`,false,true);
 const getChip=id=>{const b=$(id).querySelector('[aria-pressed="true"]');return b?b.dataset.v:null};
 const getChips=id=>[...$(id).querySelectorAll('[aria-pressed="true"]')].map(b=>b.dataset.v);
 const setChip=(id,v)=>$(id).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(Array.isArray(v)?v.includes(b.dataset.v):(v!=null&&b.dataset.v==String(v)))));
@@ -379,30 +374,30 @@ let editing=null;
 function setAgeFields(from,to){const b=birthYear();
   $("fVan").value=from??"";$("fVanJaar").value=(from!=null&&b)?Math.round(b+from):"";
   $("fPeriode").checked=to!=null;$("fTot").value=to??"";$("fTotJaar").value=(to!=null&&b)?Math.round(b+to):""}
-function resetForm(){editing=null;$("evForm").reset();setChip("fWhen","age");setChip("fCat",[]);setChip("fCert","zeker");setChip("fWb",null);
+function resetForm(){editing=null;$("formErr").textContent="";$("evForm").reset();setChip("fWhen","age");setChip("fCat",[]);
   $("fVan").placeholder="z. B. 7";
   $("formTitle").textContent="Ereignis hinzufügen";$("fSave").textContent="Hinzufügen";$("fCancel").hidden=true;$("fDelete").hidden=true;syncWhen();renderTimeline()}
 function focusForm(){if(window.matchMedia("(max-width:860px)").matches)$("evForm").scrollIntoView({behavior:"smooth",block:"start"});$("fWat").focus({preventScroll:true})}
 function loadForm(e){editing=e.id;$("fWat").value=e.wat;$("fNotitie").value=e.notitie||"";
-  setChip("fWhen",e.when);setAgeFields(e.from,e.to);setChip("fCat",e.cats);setChip("fCert",e.cert);setChip("fWb",e.wb);
+  setChip("fWhen",e.when);setAgeFields(e.from,e.to);setChip("fCat",e.cats);
   $("formTitle").textContent="Ereignis bearbeiten";$("fSave").textContent="Speichern";$("fCancel").hidden=false;$("fDelete").hidden=false;
   syncWhen();renderTimeline();focusForm()}
-function startInPhase(pid){resetForm();const p=PHASES.find(x=>x.id===pid);
+function startInPhase(pid,cat){resetForm();if(cat)setChip("fCat",[cat]);const p=PHASES.find(x=>x.id===pid);
   if(pid==="pre"||pid==="now")setChip("fWhen",pid);
   else{setChip("fWhen","age");$("fVan").placeholder=p.range.replace(" Jahre","").replace(" Jahr","").replace(" und älter","+")}
   syncWhen();$("lands").innerHTML=`Wird eingeordnet unter: <b>${p.name}</b>`;focusForm()}
 $("evForm").addEventListener("submit",ev=>{ev.preventDefault();
-  const wat=$("fWat").value.trim();if(!wat){$("fWat").focus();flash("Tragen Sie zuerst ein, was passiert ist.");return}
+  if(!getChips("fCat").length){$("fCat").querySelector("button").focus();formErr("Wählen Sie oben aus, was Sie eintragen möchten.");return}
+  const wat=$("fWat").value.trim();if(!wat){$("fWat").focus();formErr("Tragen Sie ein, was passiert ist.");return}
   const when=getChip("fWhen")||"age";
   let from=null,to=null;
   if(when==="age"){
-    if($("fVan").value===""){$("fVan").focus();flash("Tragen Sie ein Alter oder Jahr ein, oder wählen Sie „Vor meiner Geburt“ oder „Heute“.");return}
+    if($("fVan").value===""){$("fVan").focus();formErr("Tragen Sie ein Alter oder Jahr ein, oder wählen Sie „Vor meiner Geburt“ oder „Heute“.");return}
     from=Math.max(0,+$("fVan").value);
     if($("fPeriode").checked&&$("fTot").value!==""){to=Math.max(0,+$("fTot").value);if(to<from)[from,to]=[to,from];if(to===from)to=null}
   }
   const cats=getChips("fCat");
-  const data={when,from,to,wat,cats:cats.length?cats:["leven"],cert:getChip("fCert")||"zeker",
-    wb:getChip("fWb")?+getChip("fWb"):null,notitie:$("fNotitie").value.trim(),ex:false};
+  const data={when,from,to,wat,cats:cats.length?cats:["leven"],notitie:$("fNotitie").value.trim(),ex:false};
   const ph=phaseOf(data);
   if(editing){const i=state.events.findIndex(x=>x.id===editing);state.events[i]={...state.events[i],...data};flash("Gespeichert.")}
   else{state.events.push({id:"e"+Date.now(),...data});flash("Hinzugefügt.")}
@@ -414,12 +409,10 @@ $("fCancel").addEventListener("click",resetForm);
 $("fDelete").addEventListener("click",()=>{state.events=state.events.filter(x=>x.id!==editing);save();resetForm();renderOverview();flash("Gelöscht.")});
 
 /* tijdlijn */
-function certIcon(e){
+function catIcon(e){
   const c=e.cats.map(catVar);
-  if(e.cert==="zeker"){
-    const bg=c.length>1?`conic-gradient(${c.map((v,i)=>`${v} ${i*100/c.length}% ${(i+1)*100/c.length}%`).join(",")})`:c[0];
-    return `<span class="cert zeker" style="background:${bg}" title="${certName(e.cert)}"></span>`}
-  return `<span class="cert ${e.cert}" style="--cat:${c[0]}" title="${certName(e.cert)}">${e.cert==="onbekend"?"?":""}</span>`;
+  const bg=c.length>1?`conic-gradient(${c.map((v,i)=>`${v} ${i*100/c.length}% ${(i+1)*100/c.length}%`).join(",")})`:c[0];
+  return `<span class="cert zeker" style="background:${bg}"></span>`;
 }
 function renderTimeline(){
   $("timeline").innerHTML=PHASES.map((p,pi)=>{
@@ -429,17 +422,17 @@ function renderTimeline(){
       <div style="display:grid;min-width:0"><div class="head"><h3>${p.name}</h3><span class="range">${esc(range)}</span></div>
       <p class="hint">${p.hint}</p>
       ${evs.length?`<ul class="events">${evs.map(e=>`<li><button type="button" class="ev${editing===e.id?" editing":""}" data-id="${e.id}">
-        ${certIcon(e)}
+        ${catIcon(e)}
         <span style="min-width:0"><span class="what">${esc(e.wat)}</span>
-          <span class="meta tags">${e.cats.map(c=>`<span style="color:${catVar(c)}">${catName(c)}</span>`).join("")}<span>${certName(e.cert)}</span>${e.ex?'<span class="ex">Beispiel</span>':''}</span>
+          <span class="meta tags">${e.cats.map(c=>`<span style="color:${catVar(c)}">${catName(c)}</span>`).join("")}${e.ex?'<span class="ex">Beispiel</span>':''}</span>
           ${e.notitie?`<span class="meta" style="font-style:italic">${esc(e.notitie)}</span>`:""}</span>
-        <span style="text-align:right"><span class="age">${ageLabel(e)}</span>${e.wb?`<br><span class="wb">Befinden ${e.wb}/5</span>`:""}</span>
+        <span style="text-align:right"><span class="age">${ageLabel(e)}</span></span>
       </button></li>`).join("")}</ul>`:`<p class="empty">Für diese Phase ist noch nichts eingetragen.</p>`}
-      <button type="button" class="addbtn" data-phase="${p.id}">+ Zu dieser Phase hinzufügen</button>
+      <div class="addrow">${CATS.map(c=>`<button type="button" class="addbtn" data-phase="${p.id}" data-cat="${c.id}"><i class="dot" style="background:${catVar(c.id)}"></i>+ ${c.short}</button>`).join("")}</div>
       </div></section>`}).join("");
 }
 $("timeline").addEventListener("click",ev=>{
-  const a=ev.target.closest(".addbtn");if(a){startInPhase(a.dataset.phase);return}
+  const a=ev.target.closest(".addbtn");if(a){startInPhase(a.dataset.phase,a.dataset.cat);return}
   const b=ev.target.closest(".ev");if(!b)return;const e=state.events.find(x=>x.id===b.dataset.id);if(e)loadForm(e)});
 
 /* overzicht */
@@ -449,50 +442,33 @@ function arc(cx,cy,r,a0,a1){const p=a=>[cx+r*Math.sin(a),cy-r*Math.cos(a)];const
   return `M${x0.toFixed(2)},${y0.toFixed(2)}A${r},${r} 0 ${a1-a0>Math.PI?1:0} 1 ${x1.toFixed(2)},${y1.toFixed(2)}`}
 function mark(e,x0,x1,cy){
   const c=e.cats.map(catVar),n=c.length,t=`<title>${esc(e.wat)}</title>`;
-  const dash=e.cert==="vermoeden"?' stroke-dasharray="2 2"':'';
-  if(x1-x0>4){ // periode: balkje
-    const h=8,y=cy-h/2,w=x1-x0;let s="";
-    if(e.cert==="zeker"){c.forEach((v,i)=>s+=`<rect x="${x0}" y="${y+i*h/n}" width="${w}" height="${h/n}" fill="${v}"/>`)}
-    else if(e.cert==="onbekend"){s+=`<rect x="${x0}" y="${y}" width="${w}" height="${h}" rx="4" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>`}
-    else{s+=`<rect x="${x0}" y="${y}" width="${w}" height="${h}" rx="4" fill="var(--surface)" stroke="${c[0]}" stroke-width="2"${dash}/>`;
-      if(n>1)c.slice(1).forEach((v,i)=>s+=`<rect x="${x0+3}" y="${cy-1+(i-(n-2)/2)*3}" width="${w-6}" height="2" fill="${v}"/>`)}
-    return `<g>${s}${t}</g>`}
+  if(x1-x0>4){const h=8,y=cy-h/2,w=x1-x0;let s="";c.forEach((v,i)=>s+=`<rect x="${x0}" y="${y+i*h/n}" width="${w}" height="${h/n}" fill="${v}"/>`);return `<g>${s}${t}</g>`}
   const r=5;
-  if(e.cert==="onbekend")return `<circle cx="${x0}" cy="${cy}" r="${r}" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5">${t}</circle>`;
-  if(e.cert==="zeker"){if(n===1)return `<circle cx="${x0}" cy="${cy}" r="${r}" fill="${c[0]}">${t}</circle>`;
-    return `<g>${c.map((v,i)=>`<path d="${wedge(x0,cy,r,i*2*Math.PI/n,(i+1)*2*Math.PI/n)}" fill="${v}"/>`).join("")}${t}</g>`}
-  const sw=e.cert==="verteld"?2.5:2;
-  if(n===1)return `<circle cx="${x0}" cy="${cy}" r="${r-1}" fill="var(--surface)" stroke="${c[0]}" stroke-width="${sw}"${dash}>${t}</circle>`;
-  return `<g><circle cx="${x0}" cy="${cy}" r="${r-1}" fill="var(--surface)"/>${c.map((v,i)=>`<path d="${arc(x0,cy,r-1,i*2*Math.PI/n,(i+1)*2*Math.PI/n)}" fill="none" stroke="${v}" stroke-width="${sw}"${dash}/>`).join("")}${t}</g>`;
+  if(n===1)return `<circle cx="${x0}" cy="${cy}" r="${r}" fill="${c[0]}">${t}</circle>`;
+  return `<g>${c.map((v,i)=>`<path d="${wedge(x0,cy,r,i*2*Math.PI/n,(i+1)*2*Math.PI/n)}" fill="${v}"/>`).join("")}${t}</g>`;
 }
 function renderOverview(){
-  const svg=$("ov"),W=820,L=70,R=20,wbTop=26,wbBot=104;
+  const svg=$("ov"),W=820,L=70,R=20,wbTop=26,wbBot=8;
   const na=nowAge(),np=nowPos();
   const xMax=Math.ceil((Math.max(maxAge(),np)+2)/10)*10;
   const x=a=>a<0?L-36:L+(a/xMax)*(W-L-R);
   const items=state.events.map(e=>({e,x0:x(startAge(e)),x1:x(endAge(e))})).sort((a,b)=>a.x0-b.x0);
-  const rowsEnd=[];items.forEach(it=>{let r=0;while(rowsEnd[r]!=null&&rowsEnd[r]>it.x0-12)r++;rowsEnd[r]=Math.max(it.x1,it.x0);it.row=r});
-  const nRows=Math.max(1,rowsEnd.length),laneY=wbBot+22+nRows*12,H=laneY+30;
+  const rowsEnd=[];items.forEach(it=>{let r=0;while(rowsEnd[r]!=null&&rowsEnd[r]>it.x0-14)r++;rowsEnd[r]=Math.max(it.x1,it.x0);it.row=r});
+  const nRows=Math.max(1,rowsEnd.length),laneY=wbBot+22+nRows*14,H=laneY+30;
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
-  const yW=w=>wbBot-(w-1)/4*(wbBot-wbTop);
   let s="";
-  for(let w=1;w<=5;w++)s+=`<line x1="${L}" x2="${W-R}" y1="${yW(w)}" y2="${yW(w)}" stroke="var(--line)" stroke-width="1"/>`;
-  s+=`<text x="${L-8}" y="${yW(5)+4}" text-anchor="end">gut</text><text x="${L-8}" y="${yW(1)+4}" text-anchor="end">schlecht</text>`;
   s+=`<line x1="${L}" x2="${W-R}" y1="${laneY}" y2="${laneY}" stroke="var(--muted)" stroke-width="1.5"/>`;
   for(let a=0;a<=xMax;a+=(xMax>60?10:5))s+=`<line x1="${x(a)}" x2="${x(a)}" y1="${laneY}" y2="${laneY+5}" stroke="var(--muted)"/><text x="${x(a)}" y="${laneY+18}" text-anchor="middle">${a}</text>`;
   s+=`<text x="${x(-1)}" y="${laneY+18}" text-anchor="middle">vor</text><text x="${W-R}" y="${H-2}" text-anchor="end">Alter in Jahren</text>`;
-  s+=`<line x1="${x(np)}" x2="${x(np)}" y1="${wbTop-8}" y2="${laneY}" stroke="var(--mantis-ink)" stroke-dasharray="3 3"/><text x="${x(np)}" y="${wbTop-12}" text-anchor="middle" style="fill:var(--mantis-ink);font-weight:700">heute</text>`;
-  const pts=[];state.events.filter(e=>e.wb).forEach(e=>{const a0=startAge(e),a1=endAge(e);pts.push({a:a0,w:e.wb});if(a1>a0)pts.push({a:a1,w:e.wb})});
-  pts.sort((p,q)=>p.a-q.a);
-  if(pts.length>1)s+=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" points="${pts.map(p=>x(p.a).toFixed(1)+","+yW(p.w)).join(" ")}"/>`;
-  pts.forEach(p=>s+=`<circle cx="${x(p.a)}" cy="${yW(p.w)}" r="3.5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>`);
-  items.forEach(it=>{s+=mark(it.e,it.x0,it.x1,laneY-10-it.row*12)});
+  s+=`<line x1="${x(np)}" x2="${x(np)}" y1="16" y2="${laneY}" stroke="var(--mantis-ink)" stroke-dasharray="3 3"/><text x="${x(np)}" y="12" text-anchor="middle" style="fill:var(--mantis-ink);font-weight:700">heute</text>`;
+  items.forEach(it=>{s+=mark(it.e,it.x0,it.x1,laneY-10-it.row*14)});
   svg.innerHTML=s;
 }
 function renderAll(){renderTimeline();renderOverview()}
 
 /* status & export */
-let ft;function flash(m){$("status").textContent=m;clearTimeout(ft);ft=setTimeout(()=>$("status").textContent="",3500)}
+function formErr(m){$("formErr").textContent=m}
+let ft;function flash(m){$("formErr").textContent="";$("status").textContent=m;clearTimeout(ft);ft=setTimeout(()=>$("status").textContent="",3500)}
 function asText(){
   const L=[];L.push("MEINE LEBENSLINIE · vis vitalis");
   const P=state.profile;
@@ -502,7 +478,7 @@ function asText(){
   PHASES.forEach(p=>{const evs=state.events.filter(e=>phaseOf(e)===p.id).sort((a,b)=>startAge(a)-startAge(b));
     L.push("","== "+p.name.toUpperCase()+" ==");
     if(!evs.length)L.push("(nichts eingetragen)");
-    evs.forEach(e=>{L.push(`- [${ageLabel(e)}] ${e.wat} · ${e.cats.map(catName).join(", ")} · ${certName(e.cert)}${e.wb?` · Befinden ${e.wb}/5`:""}${e.ex?" (Beispiel)":""}`);if(e.notitie)L.push("    "+e.notitie)})});
+    evs.forEach(e=>{L.push(`- [${ageLabel(e)}] ${e.wat} · ${e.cats.map(catName).join(", ")}${e.ex?" (Beispiel)":""}`);if(e.notitie)L.push("    "+e.notitie)})});
   L.push("","== RÜCKBLICK ==");
   [["r1","Wann ging es mir am besten?"],["r2","Seit wann stimmt etwas nicht mehr?"],["r3","Was möchte ich noch erfragen?"]].forEach(([k,q])=>{L.push(q);L.push(state.reflect[k]?.trim()||"(nichts eingetragen)")});
   return L.join("\n");
