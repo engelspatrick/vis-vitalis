@@ -188,7 +188,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-s
     </ol>
   </section>
 
-  <footer><span>© Vis Vitalis · Learning Tools for Clinicians</span><span>Version 1.1 · Lernhilfe, keine individuelle Therapieempfehlung</span></footer>
+  <footer><span>© Vis Vitalis · Learning Tools for Clinicians</span><span>Version 1.2 · Lernhilfe, keine individuelle Therapieempfehlung</span></footer>
 </div>
 
 <script>
@@ -201,15 +201,15 @@ const tropfen=n=>n===1?'1 Tropfen':nf(n)+' Tropfen';
 
 const GENES=[
   {grp:'Transport · Vitamin-D-bindendes Protein'},
-  {id:'gc1',gene:'GC',var:'T>G',rs:'rs2282679',ev:['m','Evidenz mäßig'],
+  {id:'gc1',gene:'GC',var:'T>G',rs:'rs2282679',
    opts:{TT:{f:1.00,txt:'Normaler Transport, gutes Ansprechen.'},TG:{f:1.15,txt:'Etwas geringerer Anstieg unter Supplementierung.'},GG:{f:1.30,txt:'Deutlich geringerer Anstieg; häufiger unter 50 nmol/l trotz Einnahme.'}}},
-  {id:'gc2',gene:'GC',var:'1296 G>T',rs:'rs7041',ev:['l','Evidenz gering'],
+  {id:'gc2',gene:'GC',var:'1296 G>T',rs:'rs7041',
    opts:{GG:{f:1.00,txt:'Höhere DBP-Konzentration, höhere Spiegel.'},GT:{f:1.05,txt:'Leicht niedrigere Spiegel.'},TT:{f:1.10,txt:'Niedrigere Ausgangs- und Endspiegel.'}}},
   {grp:'Konversion · 25-Hydroxylase'},
-  {id:'cyp',gene:'CYP2R1',var:'A>G',rs:'rs10741657',ev:['l','Evidenz gering–mäßig'],
+  {id:'cyp',gene:'CYP2R1',var:'A>G',rs:'rs10741657',
    opts:{AA:{f:1.00,txt:'Normale Umwandlung zu 25(OH)D.'},AG:{f:1.10,txt:'Teilweise geringerer Anstieg berichtet.'},GG:{f:1.20,txt:'Höheres Mangelrisiko; geringeres Ansprechen in einigen Studien.'}}},
   {grp:'Rezeptor · VDR'},
-  {id:'fok',gene:'VDR',var:'Fok1 T>C',rs:'rs2228570',ev:['m','Evidenz mäßig'],
+  {id:'fok',gene:'VDR',var:'Fok1 T>C',rs:'rs2228570',
    opts:{CC:{f:1.00,txt:'FF: bestes Ansprechen der Spiegel.'},TC:{f:1.10,txt:'Ff: geringerer Anstieg der Spiegel.'},TT:{f:1.20,txt:'ff: geringster Anstieg der Spiegel.'}}},
   {id:'bsm',gene:'VDR',var:'Bsm1 G>A',rs:'rs1544410',ev:['h','kein Effekt'],
    opts:{GG:{f:1.00,txt:'Kein Einfluss auf das Ansprechen belegt.'},GA:{f:1.00,txt:'Kein Einfluss auf das Ansprechen; relevant für Knochendichte und Kalzium.'},AA:{f:1.00,txt:'Kein Einfluss auf das Ansprechen; Knochendichte beachten.'}}},
@@ -223,7 +223,7 @@ GENES.forEach(g=>{
   const o=Object.keys(g.opts).map(k=>`<option value="${k}">${k}</option>`).join('');
   const d=document.createElement('div'); d.className='gene';
   d.innerHTML=`<div><div class="name">${g.gene} <span>${g.var}</span></div>
-      <div class="rs">${g.rs}<span class="ev ${g.ev[0]}">${g.ev[1]}</span></div></div>
+      <div class="rs">${g.rs}${g.ev?`<span class="ev ${g.ev[0]}">${g.ev[1]}</span>`:''}</div></div>
     <select id="g_${g.id}" aria-label="${g.gene} ${g.var}"><option value="">unbekannt</option>${o}</select>
     <div class="fac" id="f_${g.id}">–</div>
     <div class="eff" id="e_${g.id}"></div>`;
