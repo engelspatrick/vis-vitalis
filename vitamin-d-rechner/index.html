@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vitamin-D-Rechner · vis vitalis</title>
+<meta name="description" content="Praxis-Tool für Ärzte und Heilpraktiker: Vitamin-D-Aufsättigung nach Dr. R. von Helden mit Erhaltungsdosis und Tropfen-Umrechnung.">
+<meta name="theme-color" content="#3b4939">
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@400;600;700&family=Lato:wght@400;700&display=swap">
+<style>
+/* Layout: Praxis-Tool — links Eingaben, rechts Ergebnis; darunter Patientenblatt als Papierbogen */
+:root{
+  --redwood:#ae5e4e; --feldgrau:#3b4939; --mantis:#79b473; --sunset:#fccf9d; --powder:#a8c6da;
+  --bg:#f7f6f2; --surface:#ffffff; --fg:#2a3328; --muted:#66705f; --line:#dcdcd2;
+  --accent:var(--redwood); --head:var(--feldgrau); --soft:#f3ece4; --warnbg:#fff4e3; --warnfg:#8a4b12;
+  --okbg:#eef6ec; --paper:#ffffff; --paperfg:#2a3328;
+  --f-head:"Domine",Georgia,serif; --f-body:"Lato","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1c211b; --surface:#252c24; --fg:#e7e9e2; --muted:#a5ad9f; --line:#3a4438;
+  --accent:#d98a79; --head:#c9d6c5; --soft:#2f2a26; --warnbg:#3a2c1a; --warnfg:#f3c48a; --okbg:#243323;
+  --paper:#fbfaf6; --paperfg:#2a3328; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1c211b; --surface:#252c24; --fg:#e7e9e2; --muted:#a5ad9f; --line:#3a4438;
+  --accent:#d98a79; --head:#c9d6c5; --soft:#2f2a26; --warnbg:#3a2c1a; --warnfg:#f3c48a; --okbg:#243323;
+  --paper:#fbfaf6; --paperfg:#2a3328; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
+.topbar{background:var(--feldgrau);color:#f5f6f2}
+.topbar .in{max-width:1040px;margin:0 auto;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.topbar .brand{font-family:var(--f-head);font-weight:700;font-size:22px;color:var(--sunset)}
+.tagline{font-size:13px;opacity:.85;font-style:italic}
+.eyebrow{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.wrap{max-width:1040px;margin:0 auto;padding-block:26px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;border-bottom:2px solid var(--line);padding-bottom:12px}
+.brand{font-family:var(--f-head);font-size:26px;color:var(--accent);letter-spacing:.01em;line-height:1}
+.brand small{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+h1{font-family:var(--f-head);color:var(--head);font-size:clamp(22px,3.4vw,30px);margin:0;text-wrap:balance;font-weight:600}
+.lead{color:var(--muted);margin:4px 0 0;max-width:65ch}
+.formula{font-family:var(--f-head);background:var(--soft);border-radius:6px;padding:10px 14px;font-size:15px;color:var(--fg)}
+.formula b{color:var(--accent)}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:grid;gap:14px;min-width:0}
+.panel h2{font-family:var(--f-head);font-size:17px;color:var(--head);margin:0;font-weight:600}
+label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin-bottom:4px}
+.field{display:flex;gap:8px;align-items:center}
+input,select{font:inherit;font-size:17px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;font-variant-numeric:tabular-nums}
+select{width:auto;font-size:14px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--mantis);outline-offset:1px}
+.unit{font-size:13px;color:var(--muted);white-space:nowrap}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+.big{display:grid;gap:4px;padding:14px 16px;border-radius:8px;background:var(--okbg)}
+.big .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.big .val{font-family:var(--f-head);font-size:clamp(26px,4vw,34px);color:var(--head);font-variant-numeric:tabular-nums;line-height:1.15}
+.big .sub{font-size:14px;color:var(--fg)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td:first-child,th:first-child{text-align:left}
+tr.sum td{font-weight:700;color:var(--head)}
+.tblwrap{overflow-x:auto}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.phase{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.phase .tag{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.phase .drops{font-family:var(--f-head);font-size:24px;color:var(--head)}
+.phase .meta{font-size:13.5px;color:var(--muted)}
+.warn{background:var(--warnbg);color:var(--warnfg);border-radius:6px;padding:9px 12px;font-size:14px}
+.warns{display:grid;gap:8px}
+.notes{font-size:13.5px;color:var(--muted);display:grid;gap:4px}
+.notes p{margin:0;max-width:75ch}
+footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+
+<div class="topbar"><div class="in"><span class="brand">vis vitalis</span><span class="tagline">ervaar jouw levenskracht</span></div></div>
+
+<div class="wrap">
+  <div class="noprint" style="display:grid;gap:10px">
+    <div class="eyebrow">Praxis-Tool · Vitamin D</div>
+    <h1>Vitamin-D-Aufsättigung nach Dr. R. von Helden</h1>
+    <p class="lead">Berechnet die Aufsättigungsdosis vom gemessenen 25(OH)D-Ausgangswert bis zum gewählten Zielwert, verteilt über ein Zeitfenster, plus gewichtsbezogene Erhaltungsdosis.</p>
+    <div class="formula">Aufsättigung (IE) = (<b>Zielwert</b> − <b>Ausgangswert</b>) [ng/ml] × <b>Körpergewicht</b> [kg] × 140</div>
+  </div>
+
+  <div class="grid noprint">
+    <form class="panel" id="f" autocomplete="off">
+      <h2>Eingaben</h2>
+      <div>
+        <label for="ist">Ausgangswert 25(OH)D</label>
+        <div class="field"><input id="ist" type="number" inputmode="decimal" min="0" step="0.1" value="18">
+          <select id="einheit" aria-label="Einheit"><option value="ng">ng/ml</option><option value="nmol">nmol/l</option></select></div>
+      </div>
+      <div>
+        <label for="ziel">Zielwert</label>
+        <div class="field"><input id="ziel" type="number" inputmode="decimal" min="0" step="1" value="50"><span class="unit" id="zielunit">ng/ml</span></div>
+      </div>
+      <div>
+        <label for="kg">Körpergewicht</label>
+        <div class="field"><input id="kg" type="number" inputmode="decimal" min="1" step="0.5" value="70"><span class="unit">kg</span></div>
+      </div>
+      <div>
+        <label for="tage">Zeitfenster Aufsättigung</label>
+        <div class="field"><input id="tage" type="number" inputmode="numeric" min="1" step="1" value="60"><span class="unit">Tage</span></div>
+        <div class="hint" id="wochen"></div>
+      </div>
+      <div class="notes">
+        <p><strong>Fest hinterlegt:</strong> Faktor 140 IE pro ng/ml und kg · Erhaltung 40 IE pro kg/Tag · 1 Tropfen = 2.500 IE = 62,5 µg · 1 µg = 40 IE</p>
+      </div>
+    </form>
+
+    <section class="panel" aria-live="polite">
+      <h2>Ergebnis</h2>
+      <div class="big">
+        <span class="lbl">Tagesdosis während der Aufsättigung</span>
+        <span class="val" id="rTag">–</span>
+        <span class="sub" id="rTagSub"></span>
+      </div>
+      <div class="tblwrap"><table>
+        <thead><tr><th>Baustein</th><th>IE</th><th>µg</th></tr></thead>
+        <tbody>
+          <tr><td>Aufsättigung gesamt</td><td id="t1ie"></td><td id="t1ug"></td></tr>
+          <tr><td>Aufsättigung pro Tag</td><td id="t2ie"></td><td id="t2ug"></td></tr>
+          <tr><td>+ Erhaltung pro Tag</td><td id="t3ie"></td><td id="t3ug"></td></tr>
+          <tr class="sum"><td>Tagesdosis berechnet</td><td id="t4ie"></td><td id="t4ug"></td></tr>
+        </tbody>
+      </table></div>
+      <div class="phases">
+        <div class="phase"><span class="tag">Phase 1 · Aufsättigung</span><span class="drops" id="p1"></span><span class="meta" id="p1m"></span></div>
+        <div class="phase"><span class="tag">Phase 2 · Erhaltung</span><span class="drops" id="p2"></span><span class="meta" id="p2m"></span></div>
+      </div>
+      <div class="warns" id="warns"></div>
+    </section>
+  </div>
+
+  <footer><span>© Vis Vitalis · Learning Tools for Clinicians</span><span>Version 1.0 · Lernhilfe, keine individuelle Therapieempfehlung</span></footer>
+</div>
+
+<script>
+const F=140, DROP=2500, MAINT_KG=40, UG=40;
+const $=id=>document.getElementById(id);
+const nf=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d});
+const ie=n=>nf(Math.round(n))+' IE';
+const ug=n=>nf(n/UG,n/UG<100?1:0)+' µg';
+const tropfen=n=>n===1?'1 Tropfen':nf(n)+' Tropfen';
+
+// Einheitenwechsel: Werte umrechnen
+let unit='ng';
+$('einheit').addEventListener('change',e=>{
+  const to=e.target.value; if(to===unit) return;
+  const k=to==='nmol'?2.5:0.4;
+  ['ist','ziel'].forEach(id=>{const v=parseFloat($(id).value); if(!isNaN(v)) $(id).value=+(v*k).toFixed(1)});
+  unit=to; $('zielunit').textContent=to==='nmol'?'nmol/l':'ng/ml'; calc();
+});
+
+function calc(){
+  const k=unit==='nmol'?0.4:1;
+  const ist=parseFloat($('ist').value)*k, ziel=parseFloat($('ziel').value)*k;
+  const kg=parseFloat($('kg').value), tage=Math.round(parseFloat($('tage').value));
+  const ok=[ist,ziel,kg,tage].every(v=>isFinite(v)) && kg>0 && tage>0 && ist>=0;
+  $('wochen').textContent=ok?`≈ ${nf(tage/7,1)} Wochen`:'';
+  if(!ok){$('rTag').textContent='–';$('rTagSub').textContent='Bitte alle Felder ausfüllen.';return}
+
+  const diff=Math.max(0,ziel-ist);
+  const auf=diff*kg*F, aufTag=auf/tage, erh=kg*MAINT_KG, tag=aufTag+erh;
+
+  // Tropfen: ganze Tropfen pro Tag, gerundet
+  const d1=Math.max(1,Math.round(tag/DROP)), d1ie=d1*DROP;
+  const d2wk=Math.max(1,Math.round(erh*7/DROP)), d2day=d2wk/7;
+  const erreicht=ist+((d1ie-erh)*tage)/(kg*F);
+
+  $('rTag').textContent=ie(tag);
+  $('rTagSub').textContent=`= ${ug(tag)} · in der Praxis ${tropfen(d1)} täglich (${ie(d1ie)})`;
+  $('t1ie').textContent=ie(auf); $('t1ug').textContent=ug(auf);
+  $('t2ie').textContent=ie(aufTag); $('t2ug').textContent=ug(aufTag);
+  $('t3ie').textContent=ie(erh); $('t3ug').textContent=ug(erh);
+  $('t4ie').textContent=ie(tag); $('t4ug').textContent=ug(tag);
+
+  $('p1').textContent=diff>0?`${tropfen(d1)} / Tag`:'entfällt';
+  $('p1m').textContent=diff>0?`${tage} Tage · ${ie(d1ie)} = ${ug(d1ie)} täglich · gesamt ${nf(d1*tage)} Tropfen · erwarteter Wert ≈ ${nf(erreicht/k,0)} ${unit==='nmol'?'nmol/l':'ng/ml'}`:'Ausgangswert liegt bereits im Zielbereich';
+  const p2txt = Number.isInteger(d2day)?`${tropfen(d2day)} / Tag`:`${tropfen(d2wk)} / Woche`;
+  $('p2').textContent=p2txt;
+  $('p2m').textContent=`Bedarf ${ie(erh)} = ${ug(erh)} täglich · gerundet ${ie(d2wk*DROP/7)} pro Tag im Schnitt`;
+
+  // Hinweise
+  const w=[];
+  if(ist<12) w.push('Schwerer Mangel (unter 12 ng/ml): Ursache abklären (Resorption, Leber, Niere, Medikamente).');
+  if(ziel>80) w.push('Zielwert über 80 ng/ml: oberhalb der üblichen Zielbereiche. Kalzium im Serum/Urin mitkontrollieren.');
+  if(tag>10000) w.push(`Tagesdosis über 10.000 IE: nur kurzzeitig und unter Kontrolle. Längeres Zeitfenster erwägen.`);
+  if(tage<14 && diff>0) w.push('Sehr kurzes Zeitfenster: entspricht einer Stoßtherapie. Kontraindikationen (Hyperkalzämie, Sarkoidose, Nierensteine, Niereninsuffizienz) sicher ausschließen.');
+  if(ist>=44 && diff>0) w.push('Bei höheren Ausgangswerten unterschätzt die Formel den Bedarf häufig. Kontrollwert besonders wichtig.');
+  if(kg/1>110) w.push('Hohes Körpergewicht: Anstieg fällt oft geringer aus als berechnet.');
+  $('warns').innerHTML=w.map(t=>`<div class="warn">${t}</div>`).join('');
+
+}
+['ist','ziel','kg','tage'].forEach(id=>$(id).addEventListener('input',calc));
+$('f').addEventListener('submit',e=>e.preventDefault());
+calc();
+</script>
+</body>
+</html>
