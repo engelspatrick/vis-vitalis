@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vitamin-D-Rechner Genetik · vis vitalis</title>
+<meta name="description" content="Praxis-Tool für Ärzte und Heilpraktiker: Vitamin-D-Aufsättigung nach „Melz-Formel“, erweitert um GC-, CYP2R1- und VDR-Polymorphismen.">
+<meta name="theme-color" content="#3b4939">
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@400;600;700&family=Lato:wght@400;700&display=swap">
+<style>
+/* Vis-Vitalis Hausstil. Layout: Labor-Eingaben links, Ergebnis rechts; darunter Genetik-Tabelle und Evidenz */
+:root{
+  --redwood:#ae5e4e; --feldgrau:#3b4939; --mantis:#79b473; --sunset:#fccf9d; --powder:#a8c6da;
+  --bg:#f7f6f2; --surface:#ffffff; --fg:#2a3328; --muted:#66705f; --line:#dcdcd2;
+  --accent:var(--redwood); --head:var(--feldgrau); --soft:#f3ece4; --warnbg:#fff4e3; --warnfg:#8a4b12;
+  --okbg:#eef6ec; --infobg:#eaf2f7; --chip:#e9ece4;
+  --f-head:"Domine",Georgia,serif; --f-body:"Lato","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1c211b; --surface:#252c24; --fg:#e7e9e2; --muted:#a5ad9f; --line:#3a4438;
+  --accent:#d98a79; --head:#c9d6c5; --soft:#2f2a26; --warnbg:#3a2c1a; --warnfg:#f3c48a; --okbg:#243323;
+  --infobg:#1f2c33; --chip:#323b30; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1c211b; --surface:#252c24; --fg:#e7e9e2; --muted:#a5ad9f; --line:#3a4438;
+  --accent:#d98a79; --head:#c9d6c5; --soft:#2f2a26; --warnbg:#3a2c1a; --warnfg:#f3c48a; --okbg:#243323;
+  --infobg:#1f2c33; --chip:#323b30; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
+.topbar{background:var(--feldgrau);color:#f5f6f2}
+.topbar .in{max-width:1040px;margin:0 auto;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.topbar .brand{font-family:var(--f-head);font-weight:700;font-size:22px;color:var(--sunset)}
+.tagline{font-size:13px;opacity:.85;font-style:italic}
+.eyebrow{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.wrap{max-width:1040px;margin:0 auto;padding-block:26px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1{font-family:var(--f-head);color:var(--head);font-size:clamp(22px,3.4vw,30px);margin:0;text-wrap:balance;font-weight:600}
+h2{font-family:var(--f-head);font-size:17px;color:var(--head);margin:0;font-weight:600}
+.lead{color:var(--muted);margin:4px 0 0;max-width:70ch}
+.formula{font-family:var(--f-head);background:var(--soft);border-radius:6px;padding:10px 14px;font-size:15px}
+.formula b{color:var(--accent)}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:grid;gap:14px;min-width:0}
+label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin-bottom:4px}
+.field{display:flex;gap:8px;align-items:center}
+input,select{font:inherit;font-size:17px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;font-variant-numeric:tabular-nums}
+select{width:auto;font-size:14px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--mantis);outline-offset:1px}
+.unit{font-size:13px;color:var(--muted);white-space:nowrap}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.big{display:grid;gap:4px;padding:14px 16px;border-radius:8px;background:var(--chip)}
+.big.main{background:var(--okbg)}
+.big .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.big .val{font-family:var(--f-head);font-size:clamp(24px,3.6vw,32px);color:var(--head);font-variant-numeric:tabular-nums;line-height:1.15}
+.big .sub{font-size:13.5px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td:first-child,th:first-child{text-align:left}
+tr.sum td{font-weight:700;color:var(--head)}
+.tblwrap{overflow-x:auto}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.phase{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.phase .tag{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.phase .drops{font-family:var(--f-head);font-size:24px;color:var(--head)}
+.phase .meta{font-size:13.5px;color:var(--muted)}
+.warn{background:var(--warnbg);color:var(--warnfg);border-radius:6px;padding:9px 12px;font-size:14px}
+.info{background:var(--infobg);border-radius:6px;padding:9px 12px;font-size:14px}
+.warns{display:grid;gap:8px}
+/* Genetik */
+.genhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-size:14px;font-weight:700;background:var(--feldgrau);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.gtable td,.gtable th{text-align:left}
+.gtable td.num{text-align:right;white-space:nowrap;font-weight:700}
+.gtable .gene{font-family:var(--f-head);font-weight:600;color:var(--head)}
+.gtable .rs{font-size:12.5px;color:var(--muted)}
+.gtable .eff{font-size:13.5px;max-width:42ch}
+.grp td{background:var(--soft);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.ev{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.ev.m{background:var(--okbg);color:var(--head)}
+.ev.l{background:var(--warnbg);color:var(--warnfg)}
+.ev.h{background:var(--infobg);color:var(--fg)}
+.toggle{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.toggle input{width:auto;margin-top:3px}
+.refs{font-size:13px;color:var(--muted);display:grid;gap:6px;margin:0;padding-left:20px}
+.refs a{color:var(--accent)}
+.prose{font-size:14px;display:grid;gap:8px;max-width:78ch}
+.prose p{margin:0}
+footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+
+<div class="topbar"><div class="in"><span class="brand">vis vitalis</span><span class="tagline">ervaar jouw levenskracht</span></div></div>
+
+<div class="wrap">
+  <div style="display:grid;gap:10px">
+    <div class="eyebrow">Praxis-Tool · Vitamin D · Genetik</div>
+    <h1>Vitamin-D-Aufsättigung mit Genetik</h1>
+    <p class="lead">Grundlage ist die „Melz-Formel“. Zusätzlich fließen Varianten im Vitamin-D-Transport (GC), in der Konversion (CYP2R1) und am Rezeptor (VDR) ein. Transport- und Konversionsvarianten erhöhen den Dosisfaktor, Rezeptorvarianten können optional den Zielwert anheben.</p>
+    <div class="formula">Aufsättigung (IE) = (<b>Zielwert</b> − <b>Ausgangswert</b>) × <b>kg</b> × 140 × <b>genetischer Faktor</b></div>
+  </div>
+
+  <div class="grid">
+    <form class="panel" id="f" autocomplete="off">
+      <h2>Labor und Patient</h2>
+      <div>
+        <label for="ist">Ausgangswert 25(OH)D</label>
+        <div class="field"><input id="ist" type="number" inputmode="decimal" min="0" step="0.1" value="18">
+          <select id="einheit" aria-label="Einheit"><option value="ng">ng/ml</option><option value="nmol">nmol/l</option></select></div>
+      </div>
+      <div>
+        <label for="ziel">Zielwert</label>
+        <div class="field"><input id="ziel" type="number" inputmode="decimal" min="0" step="1" value="50"><span class="unit" id="zielunit">ng/ml</span></div>
+        <div class="hint" id="zielhint"></div>
+      </div>
+      <div>
+        <label for="kg">Körpergewicht</label>
+        <div class="field"><input id="kg" type="number" inputmode="decimal" min="1" step="0.5" value="70"><span class="unit">kg</span></div>
+      </div>
+      <div>
+        <label for="tage">Zeitfenster Aufsättigung</label>
+        <div class="field"><input id="tage" type="number" inputmode="numeric" min="1" step="1" value="60"><span class="unit">Tage</span></div>
+        <div class="hint" id="wochen"></div>
+      </div>
+      <p class="hint" style="margin:0">Fest hinterlegt: Faktor 140 IE pro ng/ml und kg · Erhaltung 40 IE pro kg/Tag · 1 Tropfen = 2.500 IE = 62,5 µg · 1 µg = 40 IE</p>
+    </form>
+
+    <section class="panel" aria-live="polite">
+      <h2>Ergebnis</h2>
+      <div class="compare">
+        <div class="big"><span class="lbl">Ohne Genetik</span><span class="val" id="rBase">–</span><span class="sub" id="rBaseSub"></span></div>
+        <div class="big main"><span class="lbl">Mit Genetik</span><span class="val" id="rTag">–</span><span class="sub" id="rTagSub"></span></div>
+      </div>
+      <div class="tblwrap"><table>
+        <thead><tr><th>Baustein</th><th>IE</th><th>µg</th></tr></thead>
+        <tbody>
+          <tr><td>Aufsättigung gesamt <span class="hint" id="t1f"></span></td><td id="t1ie"></td><td id="t1ug"></td></tr>
+          <tr><td>Aufsättigung pro Tag</td><td id="t2ie"></td><td id="t2ug"></td></tr>
+          <tr><td>+ Erhaltung pro Tag <span class="hint" id="t3f"></span></td><td id="t3ie"></td><td id="t3ug"></td></tr>
+          <tr class="sum"><td>Tagesdosis berechnet</td><td id="t4ie"></td><td id="t4ug"></td></tr>
+        </tbody>
+      </table></div>
+      <div class="phases">
+        <div class="phase"><span class="tag">Phase 1 · Aufsättigung</span><span class="drops" id="p1"></span><span class="meta" id="p1m"></span></div>
+        <div class="phase"><span class="tag">Phase 2 · Erhaltung</span><span class="drops" id="p2"></span><span class="meta" id="p2m"></span></div>
+      </div>
+      <div class="warns" id="warns"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="genhead">
+      <h2>Genetische Modifikatoren</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="loadDemo">Beispiel: DNA-Health-Testprofil</button>
+        <button type="button" class="ghost" id="reset">Alle auf „unbekannt“</button>
+      </div>
+    </div>
+    <p class="hint" style="margin:0">Schreibweise der Genotypen wie im DNA-Health-Befund von Nordic Laboratories. Nicht getestete Varianten auf „unbekannt“ lassen.</p>
+    <div class="tblwrap"><table class="gtable">
+      <thead><tr><th>Gen / Variante</th><th>Genotyp</th><th>Bedeutung</th><th>Evidenz</th><th style="text-align:right">Faktor</th></tr></thead>
+      <tbody id="gbody"></tbody>
+      <tfoot><tr class="sum"><td colspan="4">Genetischer Dosisfaktor (begrenzt auf max. 1,6)</td><td class="num" id="gTotal" style="text-align:right">1,00</td></tr></tfoot>
+    </table></div>
+    <label class="toggle" for="vdrZiel" style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--fg)">
+      <input type="checkbox" id="vdrZiel">
+      <span><strong>Zielwert-Zuschlag bei VDR-FokI-Variante anwenden</strong> (Hypothese): +5 ng/ml bei TC, +10 ng/ml bei TT. Begründung: geringere Transkriptionsaktivität des f-Rezeptors in vitro. Klinische Studien, die einen höheren Zielwert bei diesen Genotypen prüfen, fehlen.</span>
+    </label>
+  </section>
+
+  <section class="panel">
+    <h2>So ist der genetische Faktor begründet</h2>
+    <div class="prose">
+      <p><strong>Transport (GC, Vitamin-D-bindendes Protein).</strong> Am besten belegt. In der VDOP-Studie (323 Ältere, 12 Monate Supplementierung) lag der 25(OH)D-Wert je G-Allel von rs2282679 rund 6,6 nmol/l niedriger, und das Risiko, unter 50 nmol/l zu bleiben, war etwa dreimal so hoch. Eine chinesische RCT (240 Personen mit Prädiabetes, 1.600 IE/Tag) fand bei rs4588-Trägern (gekoppelt mit rs2282679) einen nur etwa halb so großen Anstieg. rs7041 ist mit rs2282679 gekoppelt; wird beides bestimmt, zählt im Tool nur rs2282679.</p>
+      <p><strong>Konversion (CYP2R1, 25-Hydroxylase).</strong> Mäßig belegt, uneinheitlich. In einer dänischen Anreicherungsstudie (782 Teilnehmer) sank das erreichte 25(OH)D mit der Zahl der Risiko-Allele in CYP2R1 und GC; Träger vieler Risiko-Allele reagierten kaum auf Mehrzufuhr. In VDOP war CYP2R1 rs10741657 knapp nicht signifikant. Deshalb ein kleinerer Faktor als bei GC.</p>
+      <p><strong>Rezeptor (VDR).</strong> Eine Meta-Analyse (8 Studien, 1.038 Personen) fand für FokI und TaqI einen Einfluss auf das Ansprechen der Spiegel: FF-Träger stiegen stärker an als Ff/ff. BsmI und ApaI zeigten keinen Effekt. Funktionell ist das F-Allel (C) in Zellversuchen etwa 1,6-fach aktiver als f (T). Das stützt die Hypothese, dass f-Träger höhere Wirkspiegel brauchen, ist aber nicht klinisch geprüft. TaqI wird nicht eingerechnet, weil die Labore die Allele unterschiedlich benennen und die Richtung im Befund nicht eindeutig ist.</p>
+      <p><strong>Wie die Faktoren entstehen.</strong> Die Faktoren sind eigene, vorsichtige Schätzungen aus den berichteten Unterschieden im Anstieg (etwa 10 bis 20 % geringerer Anstieg je Risiko-Allel). Sie werden multipliziert und bei 1,6 gedeckelt. Sie ersetzen nicht die Kontrollmessung, sondern machen sie umso wichtiger.</p>
+    </div>
+    <ol class="refs">
+      <li>Alonso N, Schoenmakers I, Ralston SH et al. Genetic determinants of response to vitamin D supplementation. Front Nutr 2026;13:1880174. <a href="https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2026.1880174/full" target="_blank" rel="noopener">Link</a></li>
+      <li>Ni P, Xu Z, Li X et al. Effect of CYP2R1 and GC gene polymorphisms on serum 25(OH)D response to vitamin D3 supplementation in prediabetes. Eur J Clin Nutr 2025;79. <a href="https://www.nature.com/articles/s41430-024-01564-z" target="_blank" rel="noopener">Link</a></li>
+      <li>Nissen J, Vogel U, Rasmussen LB et al. Real-life use of vitamin D3-fortified bread and milk during a winter season: the effects of CYP2R1 and GC genes on 25-hydroxyvitamin D concentrations. Genes Nutr 2014;9:413. <a href="https://link.springer.com/article/10.1007/s12263-014-0413-7" target="_blank" rel="noopener">Link</a></li>
+      <li>Usategui-Martín R, Pérez-Castrillón JL et al. Vitamin D Receptor (VDR) Gene Polymorphisms Modify the Response to Vitamin D Supplementation: A Systematic Review and Meta-Analysis. Nutrients 2022;14:360. <a href="https://doi.org/10.3390/nu14020360" target="_blank" rel="noopener">Link</a></li>
+      <li>Whitfield GK, Haussler MR et al. Functionally relevant polymorphisms in the human nuclear vitamin D receptor gene. Mol Cell Endocrinol 2001;177:145–159.</li>
+      <li>Barry EL et al. Genetic variants in CYP2R1, CYP24A1, and VDR modify the efficacy of vitamin D3 supplementation. J Clin Endocrinol Metab 2014;99:E2133. <a href="https://academic.oup.com/jcem/article/99/10/E2133/2836264" target="_blank" rel="noopener">Link</a></li>
+    </ol>
+  </section>
+
+  <footer><span>© Vis Vitalis · Learning Tools for Clinicians</span><span>Version 1.0 · Lernhilfe, keine individuelle Therapieempfehlung</span></footer>
+</div>
+
+<script>
+const F=140, DROP=2500, MAINT_KG=40, UG=40, CAP=1.6;
+const $=id=>document.getElementById(id);
+const nf=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d});
+const ie=n=>nf(Math.round(n))+' IE';
+const ug=n=>nf(n/UG,n/UG<100?1:0)+' µg';
+const tropfen=n=>n===1?'1 Tropfen':nf(n)+' Tropfen';
+
+// Genetik-Definitionen. f = Dosisfaktor je Genotyp; t = Zielwert-Zuschlag (ng/ml, nur bei aktivem Schalter)
+const GENES=[
+  {grp:'Transport · Vitamin-D-bindendes Protein'},
+  {id:'gc1',gene:'GC',var:'T>G',rs:'rs2282679',ev:['m','mäßig'],
+   opts:{TT:{f:1.00,txt:'Normaler Transport, gutes Ansprechen.'},TG:{f:1.15,txt:'Etwas geringerer Anstieg unter Supplementierung.'},GG:{f:1.30,txt:'Deutlich geringerer Anstieg; häufiger unter 50 nmol/l trotz Einnahme.'}}},
+  {id:'gc2',gene:'GC',var:'1296 G>T',rs:'rs7041',ev:['l','gering'],
+   opts:{GG:{f:1.00,txt:'Höhere DBP-Konzentration, höhere Spiegel.'},GT:{f:1.05,txt:'Leicht niedrigere Spiegel.'},TT:{f:1.10,txt:'Niedrigere Ausgangs- und Endspiegel.'}}},
+  {grp:'Konversion · 25-Hydroxylase (Leber)'},
+  {id:'cyp',gene:'CYP2R1',var:'A>G',rs:'rs10741657',ev:['l','gering–mäßig'],
+   opts:{AA:{f:1.00,txt:'Normale Umwandlung zu 25(OH)D.'},AG:{f:1.10,txt:'Teilweise geringerer Anstieg berichtet.'},GG:{f:1.20,txt:'Höheres Mangelrisiko; geringeres Ansprechen in einigen Studien.'}}},
+  {grp:'Rezeptor · VDR'},
+  {id:'fok',gene:'VDR',var:'Fok1 T>C',rs:'rs2228570',ev:['m','mäßig'],
+   opts:{CC:{f:1.00,t:0,txt:'FF: aktivere Rezeptorform, bestes Ansprechen.'},TC:{f:1.10,t:5,txt:'Ff: geringeres Ansprechen der Spiegel; Rezeptor weniger aktiv.'},TT:{f:1.20,t:10,txt:'ff: geringstes Ansprechen; Rezeptor in vitro ca. 1,6-fach weniger aktiv.'}}},
+  {id:'bsm',gene:'VDR',var:'Bsm1 G>A',rs:'rs1544410',ev:['h','kein Effekt'],
+   opts:{GG:{f:1.00,txt:'Kein Einfluss auf das Ansprechen belegt.'},GA:{f:1.00,txt:'Kein Einfluss auf das Ansprechen; relevant für Knochendichte und Kalzium.'},AA:{f:1.00,txt:'Kein Einfluss auf das Ansprechen; Knochendichte beachten.'}}},
+  {id:'taq',gene:'VDR',var:'Taq1 C>T',rs:'rs731236',ev:['h','nur Info'],
+   opts:{CC:{f:1.00,txt:'Nicht eingerechnet (Allel-Benennung je Labor uneinheitlich).'},TC:{f:1.00,txt:'Heterozygot: in der Meta-Analyse eher gutes Ansprechen.'},TT:{f:1.00,txt:'Nicht eingerechnet (Allel-Benennung je Labor uneinheitlich).'}}}
+];
+const DEMO={gc1:'TT',gc2:'GG',cyp:'GG',fok:'TC',bsm:'GA',taq:'TC'};
+
+const body=$('gbody');
+GENES.forEach(g=>{
+  const tr=document.createElement('tr');
+  if(g.grp){tr.className='grp';tr.innerHTML=`<td colspan="5">${g.grp}</td>`;body.appendChild(tr);return}
+  const o=Object.keys(g.opts).map(k=>`<option value="${k}">${k}</option>`).join('');
+  tr.innerHTML=`<td><span class="gene">${g.gene}</span> ${g.var}<br><span class="rs">${g.rs}</span></td>
+    <td><select id="g_${g.id}" aria-label="${g.gene} ${g.var}"><option value="">unbekannt</option>${o}</select></td>
+    <td class="eff" id="e_${g.id}">–</td>
+    <td><span class="ev ${g.ev[0]}">${g.ev[1]}</span></td>
+    <td class="num" id="f_${g.id}">–</td>`;
+  body.appendChild(tr);
+});
+
+function genetics(){
+  let fac=1, add=0; const gc1Known=!!$('g_gc1').value;
+  GENES.filter(g=>!g.grp).forEach(g=>{
+    const v=$('g_'+g.id).value, o=g.opts[v];
+    if(!o){$('e_'+g.id).textContent='–';$('f_'+g.id).textContent='–';return}
+    let f=o.f, txt=o.txt;
+    if(g.id==='gc2' && gc1Known){f=1;txt+=' Nicht zusätzlich gewertet (gekoppelt mit rs2282679).'}
+    $('e_'+g.id).textContent=txt;
+    $('f_'+g.id).textContent='× '+nf(f,2);
+    fac*=f; if(o.t) add+=o.t;
+  });
+  fac=Math.min(fac,CAP);
+  $('gTotal').textContent='× '+nf(fac,2);
+  return {fac, add};
+}
+
+let unit='ng';
+$('einheit').addEventListener('change',e=>{
+  const to=e.target.value; if(to===unit) return;
+  const k=to==='nmol'?2.5:0.4;
+  ['ist','ziel'].forEach(id=>{const v=parseFloat($(id).value); if(!isNaN(v)) $(id).value=+(v*k).toFixed(1)});
+  unit=to; $('zielunit').textContent=to==='nmol'?'nmol/l':'ng/ml'; calc();
+});
+
+function plan(ist,ziel,kg,tage,fac){
+  const diff=Math.max(0,ziel-ist), auf=diff*kg*F*fac, aufTag=auf/tage, erh=kg*MAINT_KG*fac, tag=aufTag+erh;
+  const d1=Math.max(1,Math.round(tag/DROP));
+  return {diff,auf,aufTag,erh,tag,d1};
+}
+
+function calc(){
+  const k=unit==='nmol'?0.4:1, u=unit==='nmol'?'nmol/l':'ng/ml';
+  const ist=parseFloat($('ist').value)*k, ziel0=parseFloat($('ziel').value)*k;
+  const kg=parseFloat($('kg').value), tage=Math.round(parseFloat($('tage').value));
+  const {fac,add}=genetics();
+  const ok=[ist,ziel0,kg,tage].every(v=>isFinite(v)) && kg>0 && tage>0 && ist>=0;
+  $('wochen').textContent=ok?`≈ ${nf(tage/7,1)} Wochen`:'';
+  if(!ok){$('rTag').textContent='–';$('rTagSub').textContent='Bitte alle Felder ausfüllen.';return}
+
+  const useAdd=$('vdrZiel').checked && add>0;
+  const ziel=ziel0+(useAdd?add:0);
+  $('zielhint').textContent=useAdd?`Mit VDR-Zuschlag gerechnet: ${nf(ziel/k)} ${u}`:'';
+
+  const b=plan(ist,ziel0,kg,tage,1), p=plan(ist,ziel,kg,tage,fac);
+  $('rBase').textContent=ie(b.tag);
+  $('rBaseSub').textContent=`${tropfen(b.d1)} täglich · Ziel ${nf(ziel0/k)} ${u}`;
+  $('rTag').textContent=ie(p.tag);
+  $('rTagSub').textContent=`${ug(p.tag)} · ${tropfen(p.d1)} täglich (${ie(p.d1*DROP)}) · Ziel ${nf(ziel/k)} ${u}`;
+
+  const fl=fac!==1?`(× ${nf(fac,2)})`:'';
+  $('t1f').textContent=fl; $('t3f').textContent=fl;
+  $('t1ie').textContent=ie(p.auf); $('t1ug').textContent=ug(p.auf);
+  $('t2ie').textContent=ie(p.aufTag); $('t2ug').textContent=ug(p.aufTag);
+  $('t3ie').textContent=ie(p.erh); $('t3ug').textContent=ug(p.erh);
+  $('t4ie').textContent=ie(p.tag); $('t4ug').textContent=ug(p.tag);
+
+  const d1ie=p.d1*DROP;
+  const erreicht=ist+((d1ie-p.erh)*tage)/(kg*F*fac);
+  $('p1').textContent=p.diff>0?`${tropfen(p.d1)} / Tag`:'entfällt';
+  $('p1m').textContent=p.diff>0?`${tage} Tage · ${ie(d1ie)} = ${ug(d1ie)} täglich · erwarteter Wert ≈ ${nf(erreicht/k)} ${u}`:'Ausgangswert liegt bereits im Zielbereich';
+  const wk=Math.max(1,Math.round(p.erh*7/DROP)), perDay=wk/7;
+  $('p2').textContent=Number.isInteger(perDay)?`${tropfen(perDay)} / Tag`:`${tropfen(wk)} / Woche`;
+  $('p2m').textContent=`Bedarf ${ie(p.erh)} = ${ug(p.erh)} täglich · gerundet ${ie(wk*DROP/7)} pro Tag im Schnitt`;
+
+  const w=[];
+  if(fac>1) w.push({c:'info',t:`Genetik erhöht die Dosis um ${nf((fac-1)*100)} %. Kontrollmessung nach 8–12 Wochen ist hier besonders wichtig, weil die Faktoren Schätzungen sind.`});
+  if(ist<12) w.push({c:'warn',t:'Schwerer Mangel (unter 12 ng/ml): Ursache abklären (Resorption, Leber, Niere, Medikamente).'});
+  if(ziel>80) w.push({c:'warn',t:'Zielwert über 80 ng/ml: oberhalb der üblichen Zielbereiche. Kalzium im Serum/Urin mitkontrollieren.'});
+  if(p.tag>10000) w.push({c:'warn',t:'Tagesdosis über 10.000 IE: nur kurzzeitig und unter Kontrolle. Längeres Zeitfenster erwägen.'});
+  if(tage<14 && p.diff>0) w.push({c:'warn',t:'Sehr kurzes Zeitfenster: entspricht einer Stoßtherapie. Kontraindikationen (Hyperkalzämie, Sarkoidose, Nierensteine, Niereninsuffizienz) sicher ausschließen.'});
+  if(ist>=44 && p.diff>0) w.push({c:'warn',t:'Bei höheren Ausgangswerten unterschätzt die Formel den Bedarf häufig.'});
+  if(kg>110) w.push({c:'warn',t:'Hohes Körpergewicht: Anstieg fällt oft geringer aus als berechnet.'});
+  $('warns').innerHTML=w.map(x=>`<div class="${x.c}">${x.t}</div>`).join('');
+}
+
+function setAll(map){GENES.filter(g=>!g.grp).forEach(g=>{$('g_'+g.id).value=map?map[g.id]||'':''});calc()}
+$('loadDemo').addEventListener('click',()=>setAll(DEMO));
+$('reset').addEventListener('click',()=>setAll(null));
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calc));
+$('vdrZiel').addEventListener('change',calc);
+$('f').addEventListener('submit',e=>e.preventDefault());
+setAll(DEMO);
+</script>
+</body>
+</html>

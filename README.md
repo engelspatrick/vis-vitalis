@@ -12,5 +12,6 @@ Ausschließlich zu Fortbildungszwecken.
 | Mito-Check | `mito-check/` |
 | Levenslijn (Anamnese-Zeitstrahl) | `levenslijn/` |
 | Vitamin-D-Rechner (Aufsättigung nach „Melz-Formel“) | `vitamin-d-rechner/` |
+| Vitamin-D-Rechner Genetik (mit GC, CYP2R1, VDR) | `vitamin-d-genetik/` |
 
 © Vis Vitalis · Brookerveld 22 · 5926 SW Venlo · NL
