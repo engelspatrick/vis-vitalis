@@ -126,13 +126,13 @@ const DB = {
       {dot:"blue",text:"Methylcobalamin 1000 µg/d sublingual"},
       {dot:"blue",text:"Riboflavin/B2 20–30 mg/d"},
       {dot:"blue",text:"Betain/TMG 1–2 g/d"},
-      {dot:"blue",text:"P5P 25 mg/d bij CBS-Hinweis"},
+      {dot:"blue",text:"P5P 25 mg/d bei CBS-Hinweis"},
     ],
     warning:null,confound:null
   },
   "hoch|niedrig": {
     type:"amber",badge:"Confounder prüfen",
-    title:"MMA↑ zonder Hcy-Erhöhung — B12 geen primäre factor",
+    title:"MMA↑ ohne Hcy-Erhöhung — B12 kein primärer Faktor",
     snps:"Renale Insuffizienz (eGFR ↓) · Hohe Propionat-Last / ungeradzahlige Fettsäuren · MUT-Genmutation (selten)",
     patho:"Hcy wird normal remethyliert oder ausreichend trans-sulfuriert. MMA-Erhöhung ist KEIN B12-Signal in diesem Muster → Confounders zwingend ausschließen.",
     prio:"Nierenfunktion: eGFR + Kreatinin. Ernährungsanamnese: Ruminantenfett (Butter, Käse, Lamm). Mikrobiom-Status evaluieren.",
@@ -172,7 +172,7 @@ const DB = {
   },
   "hoch|normal": {
     type:"amber",badge:"Confounder prüfen",
-    title:"MMA↑ bij normaal Hcy — Confounders leidend",
+    title:"MMA↑ bei normalem Hcy — Confounder im Vordergrund",
     snps:"Renale Insuffizienz (häufigste Ursache) · Hohe Propionat-Last / ungeradzahlige Fettsäuren · MUT-Polymorphismus",
     patho:"Hcy wird ausreichend metabolisiert. MMA-Erhöhung ist kein B12-Signal → Confounders zwingend ausschließen vor jeder Intervention.",
     prio:"Nierenfunktion & Ernährung prüfen. Erst nach Confounder-Ausschluss ggf. gezielt intervenieren.",
@@ -181,7 +181,7 @@ const DB = {
       {dot:"neutral",text:"Nierenunterstützung wenn eGFR ↓"},
       {dot:"neutral",text:"Ernährungsanpassung (tierische Fette, BCAA reduzieren)"},
     ],
-    warning:"Keine B12-Gabe ohne Ursachenklärung. MMA↑ + Hcy normal ist typisch voor renale Retention, nicht für Vitaminmangel.",
+    warning:"Keine B12-Gabe ohne Ursachenklärung. MMA↑ + Hcy normal ist typisch für renale Retention, nicht für Vitaminmangel.",
     confound:"Prüfen: eGFR, Kreatinin, Ernährungsprotokoll (Ruminantenfett), Darm-Mikrobiom-Status."
   },
   "normal|normal": {
