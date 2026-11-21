@@ -229,7 +229,8 @@ button{font:inherit;cursor:pointer}
 
   <footer class="footer">
     <div class="btns">
-      <button type="button" class="btn" id="copyBtn">Meine Lebenslinie kopieren</button>
+      <button type="button" class="btn" id="saveBtn">Als Word-Datei speichern</button>
+      <button type="button" class="btn ghost" id="copyBtn">Meine Lebenslinie kopieren</button>
       <button type="button" class="btn ghost" id="clearEx">Beispiele löschen</button>
       <button type="button" class="btn danger" id="clearAll">Alles löschen</button>
     </div>
@@ -240,7 +241,7 @@ button{font:inherit;cursor:pointer}
     </div>
     <div class="status" id="status" role="status"></div>
     <div id="copyWrap" hidden><label for="copyBox">Das automatische Kopieren hat nicht funktioniert. Markieren Sie den Text unten und kopieren Sie ihn selbst.</label><textarea id="copyBox" readonly></textarea></div>
-    <p>Ihre Angaben werden nur in diesem Browser auf diesem Gerät gespeichert und nicht übertragen. Bringen Sie Ihre Lebenslinie zum Erstgespräch mit, oder kopieren Sie sie und senden Sie sie vorab an Ihren Therapeuten.</p>
+    <p>Ihre Angaben werden nur in diesem Browser auf diesem Gerät gespeichert und nicht übertragen. Speichern Sie Ihre Lebenslinie als Word-Datei und senden Sie sie vorab an Ihren Therapeuten, oder bringen Sie sie zum Erstgespräch mit.</p>
     <p class="copy">© 2026 Vis Vitalis · Learning Tools for Clinicians</p>
   </footer>
 </div>
@@ -492,6 +493,77 @@ $("clearAll").addEventListener("click",()=>{$("confirmBox").hidden=false});
 $("confirmNo").addEventListener("click",()=>{$("confirmBox").hidden=true});
 $("confirmYes").addEventListener("click",()=>{state=blank();
   ["naam","gebdatum","gebplaats","r1","r2","r3"].forEach(k=>$(k).value="");updAge();save();$("confirmBox").hidden=true;resetForm();renderOverview();flash("Alles gelöscht.")});
+
+/* Word-Datei speichern */
+/* Word-Datei (.docx) ohne Bibliothek erzeugen */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipStore(files){
+  const enc=new TextEncoder(),parts=[],central=[];let off=0;
+  const d=new Date(),dt=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF,dd=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+  for(const [name,content] of files){
+    const nb=enc.encode(name),data=enc.encode(content),crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);lh.setUint16(10,dt,true);lh.setUint16(12,dd,true);
+    lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);lh.setUint16(26,nb.length,true);lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer),nb,data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);ch.setUint16(12,dt,true);ch.setUint16(14,dd,true);
+    ch.setUint32(16,crc,true);ch.setUint32(20,data.length,true);ch.setUint32(24,data.length,true);ch.setUint16(28,nb.length,true);ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),nb);
+    off+=30+nb.length+data.length;
+  }
+  const csize=central.reduce((n,p)=>n+p.length,0);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);end.setUint32(12,csize,true);end.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+}
+const xe=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"");
+/* paras: [{text, bold, italic, size (pt), color, indent (cm), space (pt before)}] */
+function buildDocx(paras){
+  const run=p=>`<w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>${p.bold?"<w:b/>":""}${p.italic?"<w:i/>":""}${p.color?`<w:color w:val="${p.color}"/>`:""}<w:sz w:val="${Math.round((p.size||11)*2)}"/></w:rPr><w:t xml:space="preserve">${xe(p.text)}</w:t></w:r>`;
+  const body=paras.map(p=>`<w:p><w:pPr><w:spacing w:before="${Math.round((p.space||0)*20)}" w:after="60"/>${p.indent?`<w:ind w:left="${Math.round(p.indent*567)}"/>`:""}</w:pPr>${p.text?run(p):""}</w:p>`).join("");
+  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1418" w:bottom="1418" w:left="1418" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  return zipStore([
+    ["[Content_Types].xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`],
+    ["_rels/.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`],
+    ["word/document.xml",doc]
+  ]);
+}
+function asParas(){
+  const R="AE5E4E",G="3B4939",M="5E675C",P=[];
+  P.push({text:"Meine Lebenslinie",bold:true,size:20,color:R});
+  P.push({text:"vis vitalis · Vorbereitung auf das Erstgespräch",size:10,color:M});
+  const Pr=state.profile;
+  P.push({text:"",size:6});
+  if(Pr.naam)P.push({text:"Name: "+Pr.naam});
+  if(Pr.gebdatum){const b=birth();P.push({text:"Geburtsdatum: "+b.toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})})}
+  if(Pr.gebplaats)P.push({text:"Geburtsort: "+Pr.gebplaats});
+  PHASES.forEach(p=>{const evs=state.events.filter(e=>phaseOf(e)===p.id).sort((a,b)=>startAge(a)-startAge(b));
+    P.push({text:p.name,bold:true,size:14,color:G,space:14});
+    if(!evs.length)P.push({text:"(nichts eingetragen)",italic:true,color:M});
+    evs.forEach(e=>{P.push({text:`[${ageLabel(e)}] ${e.wat} · ${e.cats.map(catName).join(", ")}${e.ex?" (Beispiel)":""}`});if(e.notitie)P.push({text:e.notitie,italic:true,indent:0.6,color:M})})});
+  P.push({text:"Rückblick",bold:true,size:14,color:G,space:14});
+  [["r1","Wann ging es mir am besten?"],["r2","Seit wann stimmt etwas nicht mehr?"],["r3","Was möchte ich noch erfragen?"]].forEach(([k,q])=>{
+    P.push({text:q,bold:true,space:6});
+    const a=state.reflect[k]?.trim();
+    if(a)a.split(/\n+/).forEach(l=>P.push({text:l}));else P.push({text:"(nichts eingetragen)",italic:true,color:M});
+  });
+  P.push({text:"Erstellt mit „Meine Lebenslinie“ · vis-vitalis.nl",size:9,color:M,space:18});
+  return P;
+}
+$("saveBtn").addEventListener("click",()=>{
+  try{
+    const blob=buildDocx(asParas());
+    const nm=(state.profile.naam||"").trim().replace(/[^\p{L}\p{N}]+/gu,"_").replace(/^_|_$/g,"");
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meine_Lebenslinie${nm?"_"+nm:""}.docx`;
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+    flash("Gespeichert. Sie finden die Word-Datei in Ihren Downloads.");
+  }catch(e){flash("Speichern hat nicht funktioniert. Nutzen Sie bitte „Meine Lebenslinie kopieren“.")}
+});
 
 resetForm();renderOverview();
 })();

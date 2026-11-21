@@ -11,6 +11,8 @@ Ausschließlich zu Fortbildungszwecken.
 | Darmcheck (SIBO/SIFO/IMO) | `darmcheck/` |
 | Mito-Check | `mito-check/` |
 | Levenslijn (Anamnese-Zeitstrahl) | `levenslijn/` |
+| Meine Lebenslinie (Anamnese-Zeitstrahl für Patienten, DE) | `lebenslinie/` |
+| Lebenslinie lesen (Auswertung nach IFM für Therapeuten) | `lebenslinie-lesen/` |
 | Vitamin-D-Rechner (Aufsättigung nach „Melz-Formel“) | `vitamin-d-rechner/` |
 | Vitamin-D-Rechner Genetik (mit GC, CYP2R1, VDR) | `vitamin-d-genetik/` |
 
